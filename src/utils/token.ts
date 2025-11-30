@@ -1,4 +1,8 @@
-import { encoding_for_model, type Tiktoken, type TiktokenModel } from "@dqbd/tiktoken";
+import {
+  encodingForModel,
+  type Tiktoken,
+  type TiktokenModel,
+} from "js-tiktoken";
 import { LRUCache } from "lru-cache";
 
 /**
@@ -10,13 +14,13 @@ export interface TokenizerConfig {
    * @default "gpt-4o-mini"
    */
   defaultModel?: TiktokenModel;
-  
+
   /**
    * Whether to enable caching of token counts.
    * @default true
    */
   enableCache?: boolean;
-  
+
   /**
    * Maximum size of the cache (number of items).
    * @default 1000
@@ -51,7 +55,7 @@ export interface ITokenizer {
    * @param model Optional model to use for encoding.
    * @returns Array of token integers.
    */
-  encode(text: string, model?: TiktokenModel): Uint32Array;
+  encode(text: string, model?: TiktokenModel): number[];
 
   /**
    * Decodes tokens back into text.
@@ -59,8 +63,8 @@ export interface ITokenizer {
    * @param model Optional model to use for decoding.
    * @returns The decoded text.
    */
-  decode(tokens: Uint32Array | number[], model?: TiktokenModel): string;
-  
+  decode(tokens: number[], model?: TiktokenModel): string;
+
   /**
    * Frees up resources used by the tokenizer instances.
    */
@@ -68,7 +72,7 @@ export interface ITokenizer {
 }
 
 /**
- * A utility class for tokenization using @dqbd/tiktoken.
+ * A utility class for tokenization using js-tiktoken.
  * Supports caching and model-specific encoding.
  */
 export class Tokenizer implements ITokenizer {
@@ -78,7 +82,7 @@ export class Tokenizer implements ITokenizer {
 
   constructor(config: TokenizerConfig = {}) {
     this.defaultModel = config.defaultModel || "gpt-4o-mini";
-    
+
     if (config.enableCache !== false) {
       this.cache = new LRUCache({
         max: config.cacheSize || 1000,
@@ -94,11 +98,15 @@ export class Tokenizer implements ITokenizer {
   private getEncoder(model: TiktokenModel): Tiktoken {
     if (!this.encoders.has(model)) {
       try {
-        const encoder = encoding_for_model(model);
+        const encoder = encodingForModel(model);
         this.encoders.set(model, encoder);
       } catch (error) {
         // Fallback or rethrow with better message
-        throw new Error(`Failed to load tokenizer for model '${model}': ${(error as Error).message}`);
+        throw new Error(
+          `Failed to load tokenizer for model '${model}': ${
+            (error as Error).message
+          }`
+        );
       }
     }
     const encoder = this.encoders.get(model);
@@ -116,7 +124,7 @@ export class Tokenizer implements ITokenizer {
    */
   private getCacheKey(text: string, model: string): string {
     // Use a hash or just concatenation if text is not too long.
-    // For very long text, this key generation might be expensive itself, 
+    // For very long text, this key generation might be expensive itself,
     // but simpler than hashing for now.
     // Truncate text in key if too long to avoid massive keys?
     // Let's stick to simple concatenation for correctness, assuming typical usage.
@@ -138,11 +146,11 @@ export class Tokenizer implements ITokenizer {
       const encoder = this.getEncoder(model);
       const tokens = encoder.encode(text);
       const count = tokens.length;
-      
+
       if (this.cache) {
         this.cache.set(this.getCacheKey(text, model), count);
       }
-      
+
       return count;
     } catch (error) {
       console.error("Token counting error:", error);
@@ -150,27 +158,31 @@ export class Tokenizer implements ITokenizer {
     }
   }
 
-  public encode(text: string, model: TiktokenModel = this.defaultModel): Uint32Array {
-    if (!text) return new Uint32Array(0);
+  public encode(
+    text: string,
+    model: TiktokenModel = this.defaultModel
+  ): number[] {
+    if (!text) return [];
     const encoder = this.getEncoder(model);
     return encoder.encode(text);
   }
 
-  public decode(tokens: Uint32Array | number[], model: TiktokenModel = this.defaultModel): string {
+  public decode(
+    tokens: number[],
+    model: TiktokenModel = this.defaultModel
+  ): string {
     if (!tokens || tokens.length === 0) return "";
     const encoder = this.getEncoder(model);
-    // tiktoken expects Uint32Array usually
-    const typedTokens = tokens instanceof Uint32Array ? tokens : new Uint32Array(tokens);
-    const decoded = encoder.decode(typedTokens);
-    // tiktoken returns Uint8Array bytes which need to be decoded to string?
-    // The type definition says `decode(tokens: Uint32Array): string` usually.
-    // Let's verify types. @dqbd/tiktoken `decode` returns string (it handles utf8).
-    return new TextDecoder().decode(decoded);
+    return encoder.decode(tokens);
   }
 
-  public truncate(text: string, limit: number, model: TiktokenModel = this.defaultModel): string {
+  public truncate(
+    text: string,
+    limit: number,
+    model: TiktokenModel = this.defaultModel
+  ): string {
     if (!text) return "";
-    
+
     // First check if truncation is needed
     const count = this.count(text, model);
     if (count <= limit) return text;
@@ -179,14 +191,11 @@ export class Tokenizer implements ITokenizer {
     const encoder = this.getEncoder(model);
     const tokens = encoder.encode(text);
     const truncatedTokens = tokens.slice(0, limit);
-    const decodedBytes = encoder.decode(truncatedTokens);
-    return new TextDecoder().decode(decodedBytes);
+    return encoder.decode(truncatedTokens);
   }
 
   public dispose(): void {
-    this.encoders.forEach((encoder) => {
-      encoder.free();
-    });
+    // js-tiktoken does not require manual freeing of resources
     this.encoders.clear();
     if (this.cache) {
       this.cache.clear();

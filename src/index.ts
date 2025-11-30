@@ -13,6 +13,7 @@ export * from "./processing/chunking/sliding-window";
 export * from "./processing/content-filter/bm25";
 export * from "./processing/content-filter/interfaces";
 export * from "./processing/content-filter/pruning";
+export * from "./processing/content-filter/smart-cleaner";
 export * from "./processing/markdown/citations";
 export * from "./processing/markdown/generator";
 

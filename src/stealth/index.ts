@@ -1,1 +1,3 @@
-export * from './stealth-injector';
+export * from "./actions";
+export * from "./detector";
+export * from "./stealth-injector";

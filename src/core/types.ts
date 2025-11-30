@@ -20,6 +20,7 @@ export interface CrawlerConfig {
   maxConcurrency?: number;
   cacheEnabled?: boolean;
   cacheSize?: number;
+  cacheDir?: string;
   verbose?: boolean;
 }
 
@@ -32,6 +33,10 @@ export interface CrawlOptions {
   screenshot?: boolean;
   headers?: Record<string, string>;
   bypassCache?: boolean;
+  contentOnly?: boolean;
+  excludeMedia?: boolean;
+  optimizeWithAI?: boolean;
+  openaiApiKey?: string;
   extraction?: {
     type: "css" | "llm";
     schema: CSSSchema | JsonSchema;

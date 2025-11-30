@@ -1,28 +1,49 @@
 # FlyScrape
 
-**FlyScrape** is a powerful, modular, and AI-ready web scraping and crawling library for Node.js. Built with performance and flexibility in mind, it leverages Playwright for reliable rendering, supports stealth mode to evade detection, and integrates seamlessly with LLMs for structured data extraction.
+<div align="center">
 
-**Inspiration**: This project is heavily inspired by the amazing [crawl4ai](https://github.com/unclecode/crawl4ai) library. We aim to bring similar powerful capabilities to the Node.js ecosystem with a focus on modularity and developer experience.
+**The Ultimate Node.js Web Scraping & Crawling Engine**
 
-## Features
+[![npm version](https://img.shields.io/npm/v/@flyrank/flyscrape.svg?style=flat-square)](https://www.npmjs.com/package/@flyrank/flyscrape)
+[![License](https://img.shields.io/npm/l/@flyrank/flyscrape.svg?style=flat-square)](LICENSE)
+[![Downloads](https://img.shields.io/npm/dm/@flyrank/flyscrape.svg?style=flat-square)](https://www.npmjs.com/package/@flyrank/flyscrape)
 
--   **🕷️ Advanced Crawling**: Built on Playwright for full JavaScript support and modern web compatibility.
--   **👻 Stealth Mode**: Integrated stealth techniques to evade bot detection and anti-scraping measures.
--   **🧠 LLM Extraction**: Extract structured data using Large Language Models (LLMs) with simple schema definitions.
--   **📝 Markdown Generation**: Convert web pages to clean, LLM-friendly markdown with citation support.
--   **🧹 Content Pruning**: Smart content filtering and pruning using BM25 and semantic similarity algorithms.
--   **📦 Caching**: Built-in caching to optimize performance and reduce redundant requests.
--   **🧩 Modular Architecture**: Designed with strict Separation of Concerns (SOC) for easy extensibility and maintenance.
+</div>
 
-## Installation
+**FlyScrape** is a production-grade, modular web scraping library designed for the modern web. Built on top of Playwright, it combines the reliability of headless browser automation with advanced stealth techniques, AI-powered content extraction, and efficient caching strategies.
+
+Whether you're building a data pipeline, an AI agent, or a content aggregator, FlyScrape provides the tools to extract clean, structured data from any website.
+
+---
+
+## 🚀 Key Features
+
+- **🕷️ Advanced Crawling Engine**: Leverages Playwright for full JavaScript execution, handling complex SPAs and dynamic content with ease.
+- **👻 Stealth & Anti-Blocking**: Integrated evasion techniques (user-agent rotation, fingerprinting protection, human-like behavior) to bypass WAFs and bot detection.
+- **🧠 AI-Powered Extraction**: Seamlessly integrate with OpenAI and other LLMs to extract structured JSON data from unstructured pages.
+- **🧹 Smart Content Cleaning**:
+  - **Content-Only Mode**: Automatically strips navigation, ads, footers, and boilerplate.
+  - **AI Optimization**: Use LLMs to refine extraction for perfect accuracy.
+  - **Media Filtering**: Option to include or exclude images/videos.
+- **📝 LLM-Ready Markdown**: Converts HTML to clean, semantic Markdown, optimized for RAG (Retrieval-Augmented Generation) pipelines.
+- **⚡ High Performance**:
+  - **Hybrid Caching**: Memory and disk-based caching to speed up redundant crawls.
+  - **Resource Blocking**: Block unnecessary assets (images, css, fonts) for faster loading.
+- **🧩 Developer Experience**: Written in TypeScript with a modular architecture for easy extensibility.
+
+## 📦 Installation
 
 ```bash
 npm install @flyrank/flyscrape
+# or
+yarn add @flyrank/flyscrape
+# or
+pnpm add @flyrank/flyscrape
 ```
 
-## Usage
+## ⚡ Quick Start
 
-### Basic Crawling
+### Basic Crawl
 
 ```typescript
 import { AsyncWebCrawler } from "@flyrank/flyscrape";
@@ -30,96 +51,104 @@ import { AsyncWebCrawler } from "@flyrank/flyscrape";
 async function main() {
   const crawler = new AsyncWebCrawler();
   await crawler.start();
-
+  
+  // Crawl a URL and get clean Markdown
   const result = await crawler.arun("https://example.com");
-  console.log(result.markdown);
-
+  
+  if (result.success) {
+    console.log(result.markdown);
+  }
+  
   await crawler.close();
 }
 
 main();
 ```
 
-### Extraction with CSS Selectors
+### Content-Only Mode (Smart Cleaning)
+
+Extract only the main article content, removing all UI clutter.
 
 ```typescript
-import { AsyncWebCrawler } from "@flyrank/flyscrape";
-
-async function main() {
-  const crawler = new AsyncWebCrawler();
-  await crawler.start();
-
-  const schema = {
-    articles: {
-      selector: "article",
-      list: true,
-      // nested schema configuration...
-    }
-  };
-
-  const result = await crawler.arun("https://news.ycombinator.com", {
-    extraction: {
-      type: "css",
-      schema: schema
-    }
-  });
-
-  console.log(result.extractedContent);
-  await crawler.close();
-}
+const result = await crawler.arun("https://blog.example.com/guide", {
+  contentOnly: true,
+  excludeMedia: true, // Remove images/videos
+});
 ```
 
-### LLM Extraction
+### AI-Optimized Extraction
+
+For the highest precision, use OpenAI to perfect the content extraction.
 
 ```typescript
-import { AsyncWebCrawler } from "@flyrank/flyscrape";
+const result = await crawler.arun("https://complex-site.com/article", {
+  contentOnly: true,
+  optimizeWithAI: true,
+  // Ensure process.env.OPENAI_API_KEY is set
+});
+```
 
-// Define your LLM provider (e.g., OpenAI wrapper)
-const myLLMProvider = {
-    generate: async (prompt) => { /* call OpenAI API */ return "{}"; }
+## 🛠️ Advanced Usage
+
+### Structured Data Extraction (LLM)
+
+Define a schema and let the LLM do the work.
+
+```typescript
+const schema = {
+  type: "object",
+  properties: {
+    title: { type: "string" },
+    price: { type: "number" },
+    features: { type: "array", items: { type: "string" } }
+  }
 };
 
-async function main() {
-  const crawler = new AsyncWebCrawler();
-  await crawler.start();
-
-  const schema = {
-    type: "object",
-    properties: {
-      title: { type: "string" },
-      summary: { type: "string" }
-    }
-  };
-
-  const result = await crawler.arun("https://example.com", {
-    extraction: {
-      type: "llm",
-      schema: schema,
-      provider: myLLMProvider
-    }
-  });
-
-  console.log(result.extractedContent);
-  await crawler.close();
-}
+const result = await crawler.arun("https://store.example.com/product/123", {
+  extraction: {
+    type: "llm",
+    schema: schema,
+    provider: myOpenAIProvider // Your LLM provider instance
+  }
+});
 ```
 
-### Stealth Mode
+### Stealth Configuration
 
-FlyScrape automatically uses stealth techniques when initialized. You can customize browser behavior via configuration.
+FlyScrape enables stealth mode by default. You can customize it in the config.
 
-## Documentation
+```typescript
+const crawler = new AsyncWebCrawler({
+  stealth: true,
+  headless: true,
+  // Custom headers, proxy, etc.
+});
+```
 
-For more detailed documentation, please refer to the source code and examples in the repository.
+## 🤝 Contributing
 
-## Contributing
+We love contributions! FlyScrape is an open-source project, and we welcome help to make it better.
 
-We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for details on how to get started.
+1.  **Fork** the repository.
+2.  **Clone** your fork: `git clone https://github.com/your-username/flyscrape.git`
+3.  **Create a branch**: `git checkout -b feature/amazing-feature`
+4.  **Commit** your changes.
+5.  **Push** to your branch.
+6.  **Open a Pull Request**.
 
-## License
+Please ensure your code follows the existing style and includes tests where appropriate.
 
-This project is licensed under the MIT License.
+## 💬 Support & Community
 
-## Credits
+-   **Issues**: Encountered a bug? Open an issue on [GitHub](https://github.com/flyrank/flyscrape/issues).
+-   **Discussions**: Have ideas or questions? Join the [GitHub Discussions](https://github.com/flyrank/flyscrape/discussions).
 
-Special thanks to the [crawl4ai](https://github.com/unclecode/crawl4ai) team for their innovative work in the Python ecosystem, which served as a major inspiration for this project.
+## 📄 License
+
+This project is licensed under the **MIT License**.
+
+---
+
+<div align="center">
+  Built with ❤️ by <a href="https://github.com/flyrank">FlyRank</a>
+</div>

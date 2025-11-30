@@ -24,6 +24,12 @@ export interface CleanHtmlOptions {
    * @default true
    */
   removeComments?: boolean;
+
+  /**
+   * Whether to keep only main content (remove nav, footer, header, etc.).
+   * @default false
+   */
+  onlyMainContent?: boolean;
 }
 
 /**
@@ -37,7 +43,7 @@ export function cleanHtml(
   options: CleanHtmlOptions = {}
 ): string {
   const $ = typeof html === "string" ? loadHtml(html) : html;
-  const excludeTags = options.excludeTags || [
+  let excludeTags = options.excludeTags || [
     "script",
     "style",
     "noscript",
@@ -46,6 +52,10 @@ export function cleanHtml(
     "link",
     "meta",
   ];
+
+  if (options.onlyMainContent) {
+    excludeTags = [...excludeTags, "nav", "footer", "header", "aside", "menu"];
+  }
 
   // Remove excluded tags
   $(excludeTags.join(",")).remove();

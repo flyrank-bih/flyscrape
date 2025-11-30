@@ -1,6 +1,6 @@
 {
   "name": "@flyrank/flyscrape",
-  "version": "1.0.0",
+  "version": "1.0.6",
   "description": "A powerful, modular web scraping and crawling library for Node.js, inspired by crawl4ai. Features stealth mode, LLM extraction, and markdown processing.",
   "keywords": [
     "crawler",
@@ -37,6 +37,9 @@
   ],
   "scripts": {
     "build": "rslib build",
+    "prepublishOnly": "bun run build",
+    "publish": "npm publish --access public",
+    
     "check": "biome check --write",
     "dev": "rslib build --watch",
     "format": "biome format --write",
@@ -51,9 +54,10 @@
     "vitest": "^4.0.13"
   },
   "dependencies": {
-    "@dqbd/tiktoken": "^1.0.22",
     "cheerio": "^1.1.2",
+    "js-tiktoken": "^1.0.21",
     "lru-cache": "^11.2.2",
+    "openai": "^6.9.1",
     "playwright": "^1.57.0",
     "playwright-extra": "^4.3.6",
     "puppeteer-extra-plugin-stealth": "^2.11.2",

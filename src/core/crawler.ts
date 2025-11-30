@@ -13,7 +13,10 @@ import type {
 import { extractWithLlm } from "../extraction/llm-strategy";
 import { regexChunk } from "../processing/chunking/regex";
 import { pruneContent } from "../processing/content-filter/pruning";
+import { smartClean } from "../processing/content-filter/smart-cleaner";
 import { generateMarkdown } from "../processing/markdown/generator";
+import { performStealthActions } from "../stealth/actions";
+import { isBlocked } from "../stealth/detector";
 import { extractLinks, extractMetadata, loadHtml } from "../utils/dom";
 import { normalizeUrl } from "../utils/url";
 import { BrowserManager } from "./browser-manager";
@@ -47,7 +50,10 @@ export class AsyncWebCrawler {
     this.browserManager = new BrowserManager(finalBrowserConfig);
 
     if (this.config.cacheEnabled) {
-      this.cacheManager = new CacheManager(this.config.cacheSize);
+      this.cacheManager = new CacheManager(
+        this.config.cacheSize,
+        this.config.cacheDir
+      );
     }
   }
 
@@ -179,11 +185,18 @@ export class AsyncWebCrawler {
 
       // Handle "magic" (anti-detection interactions)
       if (options.magic) {
-        await this.performMagic(page);
+        await performStealthActions(page);
       }
 
       // Extract content
       const content = await page.content();
+
+      // Check for blocking
+      if (isBlocked(content)) {
+        throw new Error(
+          "Request blocked by anti-bot system (Captcha/WAF detected)."
+        );
+      }
 
       // Screenshot if requested
       let screenshot: Buffer | undefined;
@@ -195,9 +208,19 @@ export class AsyncWebCrawler {
       const allLinks = extractLinks(content);
       const links = allLinks.filter((href) => href.startsWith("http"));
 
+      // Process content if contentOnly is requested
+      let processedHtml = content;
+      if (options.contentOnly) {
+        processedHtml = await smartClean(content, {
+          excludeMedia: options.excludeMedia,
+          optimizeWithAI: options.optimizeWithAI,
+          openaiApiKey: options.openaiApiKey,
+        });
+      }
+
       // Generate Markdown
       const markdownResult = generateMarkdown(
-        content,
+        processedHtml,
         options.processing?.markdown
       );
       let markdown =
@@ -217,7 +240,7 @@ export class AsyncWebCrawler {
       if (options.extraction) {
         if (options.extraction.type === "css") {
           extractedContent = extractWithCss(
-            content,
+            processedHtml,
             options.extraction.schema as CSSSchema
           );
         } else if (
@@ -243,7 +266,7 @@ export class AsyncWebCrawler {
 
       return {
         url: options.url,
-        html: content,
+        html: processedHtml,
         markdown,
         success: true,
         statusCode,
@@ -277,6 +300,13 @@ export class AsyncWebCrawler {
     const html = await response.text();
     const $ = loadHtml(html);
 
+    // Check for blocking
+    if (isBlocked(html)) {
+      throw new Error(
+        "Request blocked by anti-bot system (Captcha/WAF detected)."
+      );
+    }
+
     const metadata = extractMetadata($);
     const title = metadata.title;
     const description = metadata.description;
@@ -285,8 +315,21 @@ export class AsyncWebCrawler {
     const allLinks = extractLinks($);
     const links = allLinks.filter((href) => href.startsWith("http"));
 
+    // Process content if contentOnly is requested
+    let processedHtml = html;
+    if (options.contentOnly) {
+      processedHtml = await smartClean(html, {
+        excludeMedia: options.excludeMedia,
+        optimizeWithAI: options.optimizeWithAI,
+        openaiApiKey: options.openaiApiKey,
+      });
+    }
+
     // Generate Markdown
-    const markdownResult = generateMarkdown(html, options.processing?.markdown);
+    const markdownResult = generateMarkdown(
+      processedHtml,
+      options.processing?.markdown
+    );
     let markdown =
       markdownResult.markdownWithCitations || markdownResult.rawMarkdown;
 
@@ -300,7 +343,7 @@ export class AsyncWebCrawler {
     if (options.extraction) {
       if (options.extraction.type === "css") {
         extractedContent = extractWithCss(
-          html,
+          processedHtml,
           options.extraction.schema as CSSSchema
         );
       } else if (
@@ -326,7 +369,7 @@ export class AsyncWebCrawler {
 
     return {
       url: options.url,
-      html,
+      html: processedHtml,
       markdown,
       success: response.ok,
       statusCode: response.status,
@@ -340,23 +383,6 @@ export class AsyncWebCrawler {
         executionTimeMs: Date.now() - startTime,
       },
     };
-  }
-
-  /**
-   * Simulates human behavior to avoid detection.
-   */
-
-  // biome-ignore lint/suspicious/noExplicitAny: <Technical debt>
-  private async performMagic(page: any): Promise<void> {
-    // Random mouse movements
-    await page.mouse.move(Math.random() * 100, Math.random() * 100);
-    await page.waitForTimeout(Math.random() * 500 + 200);
-
-    // Scroll down a bit
-    await page.evaluate(() => {
-      window.scrollBy(0, window.innerHeight / 2);
-    });
-    await page.waitForTimeout(Math.random() * 500 + 200);
   }
 
   /**
