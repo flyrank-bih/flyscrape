@@ -7,7 +7,7 @@ import TurndownService from "turndown";
 export function configureTurndown(service: TurndownService): void {
   // Standard configuration
   service.addRule("remove_script_style", {
-    filter: ["script", "style", "noscript", "iframe", "svg"],
+    filter: ["script", "style", "noscript", "iframe"],
     replacement: () => "",
   });
 
