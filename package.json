@@ -29,6 +29,10 @@
   "private": true,
   "dependencies": {
     "@dqbd/tiktoken": "^1.0.22",
-    "lru-cache": "^11.2.2"
+    "cheerio": "^1.1.2",
+    "lru-cache": "^11.2.2",
+    "playwright": "^1.57.0",
+    "playwright-extra": "^4.3.6",
+    "puppeteer-extra-plugin-stealth": "^2.11.2"
   }
 }

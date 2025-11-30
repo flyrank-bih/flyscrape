@@ -1,3 +1,10 @@
+export {
+  calculateTextDensity,
+  cleanHtml,
+  extractLinks,
+  extractText,
+  loadHtml,
+} from './dom';
 export { tokenCounter } from './token';
 export {
   isExternalUrl,
