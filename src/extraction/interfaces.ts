@@ -72,6 +72,11 @@ export interface ExtractionResult<T = any> {
     executionTimeMs?: number;
     provider?: string;
     error?: string;
+    usage?: {
+      inputTokens: number;
+      outputTokens: number;
+      totalTokens: number;
+    };
   };
 }
 

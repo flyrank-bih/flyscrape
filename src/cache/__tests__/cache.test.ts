@@ -43,4 +43,16 @@ describe("CacheManager", () => {
     cacheManager.clear();
     expect(cacheManager.has(url)).toBe(false);
   });
+
+  it("should normalize URLs for cache keys", () => {
+    const url1 = "https://example.com?a=1&b=2";
+    const url2 = "https://example.com?b=2&a=1";
+    const result: CrawlResult = { url: url1, html: "", success: true };
+
+    cacheManager.set(url1, result);
+
+    // Should retrieve with equivalent URL
+    expect(cacheManager.get(url2)).toEqual(result);
+    expect(cacheManager.has(url2)).toBe(true);
+  });
 });

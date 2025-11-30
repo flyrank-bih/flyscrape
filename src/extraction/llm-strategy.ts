@@ -1,4 +1,5 @@
 /** biome-ignore-all lint/suspicious/noExplicitAny: <Technical debt> */
+import { tokenCounter } from "../utils/token";
 import type { ExtractionResult, JsonSchema, LLMProvider } from "./interfaces";
 import { SchemaGenerator } from "./schema-gen";
 
@@ -36,6 +37,9 @@ ${content}
 
 Output JSON:`;
 
+  // Calculate input tokens for observability
+  const inputTokens = tokenCounter.count(prompt);
+
   const startTime = Date.now();
   try {
     const response = await provider.generate(prompt, {
@@ -44,6 +48,7 @@ Output JSON:`;
     });
 
     const executionTimeMs = Date.now() - startTime;
+    const outputTokens = tokenCounter.count(response);
 
     // Clean up the response to ensure it's valid JSON
     // Remove markdown code blocks if present
@@ -84,6 +89,11 @@ Output JSON:`;
       metadata: {
         executionTimeMs,
         provider: "custom", // Could be retrieved from provider if interface allowed
+        usage: {
+          inputTokens,
+          outputTokens,
+          totalTokens: inputTokens + outputTokens,
+        },
       },
     };
   } catch (error: any) {

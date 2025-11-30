@@ -1,4 +1,3 @@
-import * as cheerio from "cheerio";
 import { CacheManager } from "../cache";
 import {
   DEFAULT_BROWSER_CONFIG,
@@ -15,6 +14,8 @@ import { extractWithLlm } from "../extraction/llm-strategy";
 import { regexChunk } from "../processing/chunking/regex";
 import { pruneContent } from "../processing/content-filter/pruning";
 import { generateMarkdown } from "../processing/markdown/generator";
+import { extractLinks, extractMetadata, loadHtml } from "../utils/dom";
+import { normalizeUrl } from "../utils/url";
 import { BrowserManager } from "./browser-manager";
 import { Dispatcher } from "./dispatcher";
 import type {
@@ -71,8 +72,11 @@ export class AsyncWebCrawler {
     url: string,
     options: Partial<CrawlOptions> = {}
   ): Promise<CrawlResult> {
+    // Normalize URL to ensure consistency
+    const normalizedUrl = normalizeUrl(url);
+
     const fullOptions: CrawlOptions = {
-      url,
+      url: normalizedUrl,
       jsExecution: true,
       waitDuration: 1000,
       ...options,
@@ -84,7 +88,7 @@ export class AsyncWebCrawler {
       this.cacheManager &&
       !fullOptions.bypassCache
     ) {
-      const cached = this.cacheManager.get(url);
+      const cached = this.cacheManager.get(normalizedUrl);
       if (cached) {
         return cached;
       }
@@ -180,7 +184,6 @@ export class AsyncWebCrawler {
 
       // Extract content
       const content = await page.content();
-      const title = await page.title();
 
       // Screenshot if requested
       let screenshot: Buffer | undefined;
@@ -188,12 +191,9 @@ export class AsyncWebCrawler {
         screenshot = await page.screenshot({ fullPage: true });
       }
 
-      // Extract links
-      const links = await page.evaluate(() => {
-        return Array.from(document.querySelectorAll("a"))
-          .map((a) => a.href)
-          .filter((href) => href.startsWith("http"));
-      });
+      // Extract links using shared utility
+      const allLinks = extractLinks(content);
+      const links = allLinks.filter((href) => href.startsWith("http"));
 
       // Generate Markdown
       const markdownResult = generateMarkdown(
@@ -207,16 +207,9 @@ export class AsyncWebCrawler {
         markdown += `\n\n${markdownResult.referencesMarkdown}`;
       }
 
-      // Get meta description and keywords
-      const metadata = await page.evaluate(() => {
-        const desc = document
-          .querySelector('meta[name="description"]')
-          ?.getAttribute("content");
-        const keys = document
-          .querySelector('meta[name="keywords"]')
-          ?.getAttribute("content");
-        return { description: desc || undefined, keywords: keys || undefined };
-      });
+      // Get metadata using shared utility
+      const metadata = extractMetadata(content);
+      const title = metadata.title;
 
       // Handle Extraction
       // biome-ignore lint/suspicious/noExplicitAny: <Technical debt>
@@ -282,19 +275,15 @@ export class AsyncWebCrawler {
     });
 
     const html = await response.text();
-    const $ = cheerio.load(html);
+    const $ = loadHtml(html);
 
-    const title = $("title").text();
-    const description = $('meta[name="description"]').attr("content");
-    const keywords = $('meta[name="keywords"]').attr("content");
+    const metadata = extractMetadata($);
+    const title = metadata.title;
+    const description = metadata.description;
+    const keywords = metadata.keywords;
 
-    const links: string[] = [];
-    $("a").each((_, el) => {
-      const href = $(el).attr("href");
-      if (href?.startsWith("http")) {
-        links.push(href);
-      }
-    });
+    const allLinks = extractLinks($);
+    const links = allLinks.filter((href) => href.startsWith("http"));
 
     // Generate Markdown
     const markdownResult = generateMarkdown(html, options.processing?.markdown);

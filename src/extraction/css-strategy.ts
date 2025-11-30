@@ -1,5 +1,6 @@
 /** biome-ignore-all lint/suspicious/noExplicitAny: <Technical debt> */
-import * as cheerio from "cheerio";
+import type * as cheerio from "cheerio";
+import { loadHtml } from "../utils/dom";
 import type { CSSFieldConfig, CSSSchema } from "./interfaces";
 
 /**
@@ -10,7 +11,7 @@ import type { CSSFieldConfig, CSSSchema } from "./interfaces";
  * @returns The extracted object.
  */
 export function extractWithCss<T = any>(html: string, schema: CSSSchema): T {
-  const $ = cheerio.load(html);
+  const $ = loadHtml(html);
   const result: any = {};
 
   for (const [field, config] of Object.entries(schema)) {

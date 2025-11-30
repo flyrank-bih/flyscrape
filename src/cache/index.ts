@@ -1,5 +1,6 @@
 import { LRUCache } from "lru-cache";
 import type { CrawlResult } from "../core/types";
+import { normalizeUrl } from "../utils/url";
 
 /**
  * Simple in-memory cache for crawl results using LRU strategy.
@@ -20,21 +21,24 @@ export class CacheManager {
    * Retrieves a cached result by URL.
    */
   get(url: string): CrawlResult | undefined {
-    return this.cache.get(url);
+    const normalizedKey = normalizeUrl(url);
+    return this.cache.get(normalizedKey);
   }
 
   /**
    * Stores a crawl result.
    */
   set(url: string, result: CrawlResult): void {
-    this.cache.set(url, result);
+    const normalizedKey = normalizeUrl(url);
+    this.cache.set(normalizedKey, result);
   }
 
   /**
    * Checks if a URL is in the cache.
    */
   has(url: string): boolean {
-    return this.cache.has(url);
+    const normalizedKey = normalizeUrl(url);
+    return this.cache.has(normalizedKey);
   }
 
   /**
