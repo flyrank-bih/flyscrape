@@ -1,4 +1,4 @@
-import type { BM25Options } from "./interfaces";
+import type { BM25Options } from './interfaces';
 
 /**
  * Implementation of the BM25 (Best Matching 25) ranking function.
@@ -41,7 +41,7 @@ export class BM25 {
   private tokenize(text: string): string[] {
     return text
       .toLowerCase()
-      .replace(/[^\w\s]/g, " ")
+      .replace(/[^\w\s]/g, ' ')
       .split(/\s+/)
       .filter((t) => t.length > 0);
   }

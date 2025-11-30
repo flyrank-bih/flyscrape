@@ -1,4 +1,4 @@
-import type { Page } from "playwright";
+import type { Page } from 'playwright';
 
 /**
  * Simulates human-like interactions to avoid bot detection.
@@ -10,7 +10,7 @@ export async function performStealthActions(page: Page): Promise<void> {
   const x = Math.random() * 800;
   const y = Math.random() * 400;
   await page.mouse.move(x, y, { steps: 10 });
-  
+
   // Random pause
   await page.waitForTimeout(Math.random() * 500 + 200);
 
@@ -18,21 +18,21 @@ export async function performStealthActions(page: Page): Promise<void> {
   // Scroll down roughly half a screen
   await page.evaluate(() => {
     window.scrollBy({
-        top: window.innerHeight / 2 + (Math.random() * 100 - 50),
-        behavior: 'smooth'
+      top: window.innerHeight / 2 + (Math.random() * 100 - 50),
+      behavior: 'smooth',
     });
   });
-  
+
   // Wait for potential lazy-loaded content
   await page.waitForTimeout(Math.random() * 1000 + 500);
 
   // Small scroll adjustment (up or down)
   await page.evaluate(() => {
     window.scrollBy({
-        top: (Math.random() * 200 - 100),
-        behavior: 'smooth'
+      top: Math.random() * 200 - 100,
+      behavior: 'smooth',
     });
   });
-  
+
   await page.waitForTimeout(Math.random() * 500 + 200);
 }

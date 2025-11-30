@@ -1,7 +1,7 @@
 /** biome-ignore-all lint/suspicious/noExplicitAny: <Technical debt> */
-import type * as cheerio from "cheerio";
-import { loadHtml } from "../utils/dom";
-import type { CSSFieldConfig, CSSSchema } from "./interfaces";
+import type * as cheerio from 'cheerio';
+import { loadHtml } from '../utils/dom';
+import type { CSSFieldConfig, CSSSchema } from './interfaces';
 
 /**
  * Extracts data from HTML using CSS selectors.
@@ -15,7 +15,7 @@ export function extractWithCss<T = any>(html: string, schema: CSSSchema): T {
   const result: any = {};
 
   for (const [field, config] of Object.entries(schema)) {
-    if (typeof config === "string") {
+    if (typeof config === 'string') {
       // Simple selector case: extract text
       result[field] = $(config).text().trim();
     } else {
@@ -54,16 +54,16 @@ function extractValue(
   element: cheerio.Cheerio<any>,
   attribute?: string,
   asHtml?: boolean,
-  transform?: (value: string) => any
+  transform?: (value: string) => any,
 ): any {
   if (element.length === 0) return null;
 
   let value: string;
 
   if (attribute) {
-    value = element.attr(attribute) || "";
+    value = element.attr(attribute) || '';
   } else if (asHtml) {
-    value = element.html() || "";
+    value = element.html() || '';
   } else {
     value = element.text();
   }

@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import { regexChunk } from '../regex';
 
 describe('Regex Chunking', () => {
@@ -25,7 +25,7 @@ describe('Regex Chunking', () => {
 
   it('should handle multiple patterns iteratively', () => {
     const text = 'Section 1\n\nSubsection A. Subsection B.';
-    // Split by \n\n then by . 
+    // Split by \n\n then by .
     const chunks = regexChunk(text, [/\n\n/, /\. /]);
     // Expected: ["Section 1", "Subsection A", "Subsection B."]
     expect(chunks).toHaveLength(3);

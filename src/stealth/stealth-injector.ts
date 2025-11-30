@@ -9,13 +9,13 @@ export type BrowserEngine = 'chromium' | 'firefox' | 'webkit';
 
 /**
  * Configures and returns a Playwright browser launcher with stealth techniques enabled.
- * 
+ *
  * This function leverages `playwright-extra` and `puppeteer-extra-plugin-stealth`
  * to apply various evasion techniques that prevent bot detection.
- * 
+ *
  * @param engine - The browser engine to use ('chromium', 'firefox', 'webkit'). Defaults to 'chromium'.
  * @returns The Playwright browser launcher with stealth plugins registered.
- * 
+ *
  * @example
  * ```ts
  * const browser = await enableStealth('chromium').launch();

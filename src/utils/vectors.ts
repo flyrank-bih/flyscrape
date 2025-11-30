@@ -12,7 +12,9 @@
  */
 export function cosineSimilarity(vecA: number[], vecB: number[]): number {
   if (vecA.length !== vecB.length) {
-    throw new Error(`Vectors must have the same dimensions. Got ${vecA.length} and ${vecB.length}.`);
+    throw new Error(
+      `Vectors must have the same dimensions. Got ${vecA.length} and ${vecB.length}.`,
+    );
   }
 
   if (vecA.length === 0) {
@@ -60,7 +62,7 @@ export function normalizeVector(vec: number[]): number[] {
   if (magnitude === 0) {
     return new Array(vec.length).fill(0);
   }
-  return vec.map(val => val / magnitude);
+  return vec.map((val) => val / magnitude);
 }
 
 /**
@@ -72,9 +74,11 @@ export function normalizeVector(vec: number[]): number[] {
  */
 export function dotProduct(vecA: number[], vecB: number[]): number {
   if (vecA.length !== vecB.length) {
-    throw new Error(`Vectors must have the same dimensions. Got ${vecA.length} and ${vecB.length}.`);
+    throw new Error(
+      `Vectors must have the same dimensions. Got ${vecA.length} and ${vecB.length}.`,
+    );
   }
-  
+
   let product = 0;
   for (let i = 0; i < vecA.length; i++) {
     product += vecA[i] * vecB[i];

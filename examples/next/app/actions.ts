@@ -1,8 +1,6 @@
-"use server";
+'use server';
 
-import { AsyncWebCrawler } from "@flyrank/flyscrape";
-// biome-ignore lint/suspicious/noShadowRestrictedNames: <Technical debt>
-import Error  from "next/error";
+import { AsyncWebCrawler } from '@flyrank/flyscrape';
 
 export async function scrapeUrl(
   url: string,
@@ -10,10 +8,10 @@ export async function scrapeUrl(
     contentOnly?: boolean;
     excludeMedia?: boolean;
     optimizeWithAI?: boolean;
-  } = {}
+  } = {},
 ) {
   try {
-    console.log("Starting scrape for:", url, "Options:", options);
+    console.log('Starting scrape for:', url, 'Options:', options);
     const crawler = new AsyncWebCrawler();
 
     // Use arun which is the main entry point
@@ -27,12 +25,12 @@ export async function scrapeUrl(
 
     // Serialization for Next.js server actions
     // We return a plain object.
-    return { success: true, data: result };
+    return { success: true as const, data: result };
   } catch (error) {
-    console.error("Scrape error:", error);
+    console.error('Scrape error:', error);
     return {
-      success: false,
-      error: error instanceof Error ? error.props.message : String(error),
+      success: false as const,
+      error: error instanceof Error ? error.message : String(error),
     };
   }
 }

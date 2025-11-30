@@ -24,22 +24,22 @@ describe('Stealth Injector', () => {
     // We cast to any because the type definition might not expose plugins publicly in all versions,
     // but it exists at runtime.
     // biome-ignore lint/suspicious/noExplicitAny: <Technical debt>
-                const plugins = (launcher as any).plugins;
-    
+    const plugins = (launcher as any).plugins;
+
     // If plugins is undefined, maybe we are checking the wrong object?
     if (plugins) {
-        // plugins is a PluginList object, not an array directly.
-        // It has a .list getter that returns the array of plugins.
-        // biome-ignore lint/suspicious/noExplicitAny: <Technical debt>
-                        const pluginList = (plugins as any).list || (plugins as any)._plugins;
-        expect(Array.isArray(pluginList)).toBe(true);
-        // biome-ignore lint/suspicious/noExplicitAny: <Technical debt>
-        const hasStealth = pluginList.some((p: any) => p.name === 'stealth');
-        expect(hasStealth).toBe(true);
+      // plugins is a PluginList object, not an array directly.
+      // It has a .list getter that returns the array of plugins.
+      // biome-ignore lint/suspicious/noExplicitAny: <Technical debt>
+      const pluginList = (plugins as any).list || (plugins as any)._plugins;
+      expect(Array.isArray(pluginList)).toBe(true);
+      // biome-ignore lint/suspicious/noExplicitAny: <Technical debt>
+      const hasStealth = pluginList.some((p: any) => p.name === 'stealth');
+      expect(hasStealth).toBe(true);
     } else {
-        // Fallback check or fail
-        // It might be that we need to access it differently
-        expect(plugins).toBeDefined();
+      // Fallback check or fail
+      // It might be that we need to access it differently
+      expect(plugins).toBeDefined();
     }
   });
 });

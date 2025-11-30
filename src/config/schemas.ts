@@ -2,14 +2,14 @@
 // if we were validating external config input. For now, we'll keep it simple
 // and potentially use it for type guards or runtime validation helpers.
 
-import type { BrowserConfig, CrawlerConfig } from "../core/types";
+import type { BrowserConfig, CrawlerConfig } from '../core/types';
 
 /**
  * Validates and merges partial browser config with defaults.
  */
 export function mergeBrowserConfig(
   defaultConfig: BrowserConfig,
-  userConfig: Partial<BrowserConfig> = {}
+  userConfig: Partial<BrowserConfig> = {},
 ): BrowserConfig {
   return {
     ...defaultConfig,
@@ -30,7 +30,7 @@ export function mergeBrowserConfig(
  */
 export function mergeCrawlerConfig(
   defaultConfig: CrawlerConfig,
-  userConfig: Partial<CrawlerConfig> = {}
+  userConfig: Partial<CrawlerConfig> = {},
 ): CrawlerConfig {
   return {
     ...defaultConfig,

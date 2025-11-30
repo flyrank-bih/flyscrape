@@ -2,8 +2,8 @@ import {
   encodingForModel,
   type Tiktoken,
   type TiktokenModel,
-} from "js-tiktoken";
-import { LRUCache } from "lru-cache";
+} from 'js-tiktoken';
+import { LRUCache } from 'lru-cache';
 
 /**
  * Configuration options for the Tokenizer.
@@ -81,7 +81,7 @@ export class Tokenizer implements ITokenizer {
   private defaultModel: TiktokenModel;
 
   constructor(config: TokenizerConfig = {}) {
-    this.defaultModel = config.defaultModel || "gpt-4o-mini";
+    this.defaultModel = config.defaultModel || 'gpt-4o-mini';
 
     if (config.enableCache !== false) {
       this.cache = new LRUCache({
@@ -105,7 +105,7 @@ export class Tokenizer implements ITokenizer {
         throw new Error(
           `Failed to load tokenizer for model '${model}': ${
             (error as Error).message
-          }`
+          }`,
         );
       }
     }
@@ -153,14 +153,14 @@ export class Tokenizer implements ITokenizer {
 
       return count;
     } catch (error) {
-      console.error("Token counting error:", error);
+      console.error('Token counting error:', error);
       return 0; // Fail safe? Or throw?
     }
   }
 
   public encode(
     text: string,
-    model: TiktokenModel = this.defaultModel
+    model: TiktokenModel = this.defaultModel,
   ): number[] {
     if (!text) return [];
     const encoder = this.getEncoder(model);
@@ -169,9 +169,9 @@ export class Tokenizer implements ITokenizer {
 
   public decode(
     tokens: number[],
-    model: TiktokenModel = this.defaultModel
+    model: TiktokenModel = this.defaultModel,
   ): string {
-    if (!tokens || tokens.length === 0) return "";
+    if (!tokens || tokens.length === 0) return '';
     const encoder = this.getEncoder(model);
     return encoder.decode(tokens);
   }
@@ -179,9 +179,9 @@ export class Tokenizer implements ITokenizer {
   public truncate(
     text: string,
     limit: number,
-    model: TiktokenModel = this.defaultModel
+    model: TiktokenModel = this.defaultModel,
   ): string {
-    if (!text) return "";
+    if (!text) return '';
 
     // First check if truncation is needed
     const count = this.count(text, model);

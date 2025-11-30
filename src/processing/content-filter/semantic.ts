@@ -1,5 +1,5 @@
-import { cosineSimilarity } from "../../utils/vectors";
-import type { ScoredChunk } from "./interfaces";
+import { cosineSimilarity } from '../../utils/vectors';
+import type { ScoredChunk } from './interfaces';
 
 /**
  * Filters content chunks based on semantic similarity (cosine similarity) of embeddings.
@@ -12,7 +12,7 @@ import type { ScoredChunk } from "./interfaces";
 export function filterBySemanticSimilarity(
   chunks: { content: string; embedding: number[] }[],
   queryEmbedding: number[],
-  threshold: number = 0.7
+  threshold: number = 0.7,
 ): ScoredChunk[] {
   if (!chunks || chunks.length === 0 || !queryEmbedding) {
     return [];

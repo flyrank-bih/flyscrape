@@ -1,8 +1,8 @@
-import { describe, expect, it } from "vitest";
-import { extractWithCss } from "../css-strategy";
-import type { CSSSchema } from "../interfaces";
+import { describe, expect, it } from 'vitest';
+import { extractWithCss } from '../css-strategy';
+import type { CSSSchema } from '../interfaces';
 
-describe("extractWithCss", () => {
+describe('extractWithCss', () => {
   const html = `
     <div class="product">
       <h1 id="title">Super Widget</h1>
@@ -16,62 +16,62 @@ describe("extractWithCss", () => {
     </div>
   `;
 
-  it("should extract simple text fields", () => {
+  it('should extract simple text fields', () => {
     const schema: CSSSchema = {
-      title: "#title",
-      price: ".price",
+      title: '#title',
+      price: '.price',
     };
 
     const result = extractWithCss(html, schema);
     expect(result).toEqual({
-      title: "Super Widget",
-      price: "$19.99",
+      title: 'Super Widget',
+      price: '$19.99',
     });
   });
 
-  it("should extract attributes", () => {
+  it('should extract attributes', () => {
     const schema: CSSSchema = {
       buyLink: {
-        selector: ".btn-buy",
-        attribute: "href",
+        selector: '.btn-buy',
+        attribute: 'href',
       },
     };
 
     const result = extractWithCss(html, schema);
     expect(result).toEqual({
-      buyLink: "/buy",
+      buyLink: '/buy',
     });
   });
 
-  it("should extract HTML content", () => {
+  it('should extract HTML content', () => {
     const schema: CSSSchema = {
       description: {
-        selector: ".description",
+        selector: '.description',
         asHtml: true,
       },
     };
 
     const result = extractWithCss(html, schema);
-    expect(result.description).toContain("<b>great</b>");
+    expect(result.description).toContain('<b>great</b>');
   });
 
-  it("should extract lists", () => {
+  it('should extract lists', () => {
     const schema: CSSSchema = {
       features: {
-        selector: ".features li",
+        selector: '.features li',
         list: true,
       },
     };
 
     const result = extractWithCss(html, schema);
-    expect(result.features).toEqual(["Durable", "Lightweight"]);
+    expect(result.features).toEqual(['Durable', 'Lightweight']);
   });
 
-  it("should apply transformations", () => {
+  it('should apply transformations', () => {
     const schema: CSSSchema = {
       price: {
-        selector: ".price",
-        transform: (val) => parseFloat(val.replace("$", "")),
+        selector: '.price',
+        transform: (val) => parseFloat(val.replace('$', '')),
       },
     };
 
@@ -79,12 +79,12 @@ describe("extractWithCss", () => {
     expect(result.price).toBe(19.99);
   });
 
-  it("should handle missing elements gracefully", () => {
+  it('should handle missing elements gracefully', () => {
     const schema: CSSSchema = {
-      missing: ".does-not-exist",
+      missing: '.does-not-exist',
     };
 
     const result = extractWithCss(html, schema);
-    expect(result.missing).toBe("");
+    expect(result.missing).toBe('');
   });
 });

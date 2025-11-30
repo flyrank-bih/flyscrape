@@ -1,19 +1,19 @@
-import { beforeEach, describe, expect, it } from "vitest";
-import type { CrawlResult } from "../../core/types";
-import { CacheManager } from "../index";
+import { beforeEach, describe, expect, it } from 'vitest';
+import type { CrawlResult } from '../../core/types';
+import { CacheManager } from '../index';
 
-describe("CacheManager", () => {
+describe('CacheManager', () => {
   let cacheManager: CacheManager;
 
   beforeEach(() => {
     cacheManager = new CacheManager(10); // Small size for testing
   });
 
-  it("should store and retrieve values", () => {
-    const url = "https://example.com";
+  it('should store and retrieve values', () => {
+    const url = 'https://example.com';
     const result: CrawlResult = {
       url,
-      html: "<html></html>",
+      html: '<html></html>',
       success: true,
     };
 
@@ -23,31 +23,31 @@ describe("CacheManager", () => {
     expect(retrieved).toEqual(result);
   });
 
-  it("should return undefined for missing keys", () => {
-    expect(cacheManager.get("missing")).toBeUndefined();
+  it('should return undefined for missing keys', () => {
+    expect(cacheManager.get('missing')).toBeUndefined();
   });
 
-  it("should check for existence", () => {
-    const url = "https://example.com";
-    const result: CrawlResult = { url, html: "", success: true };
+  it('should check for existence', () => {
+    const url = 'https://example.com';
+    const result: CrawlResult = { url, html: '', success: true };
 
     cacheManager.set(url, result);
     expect(cacheManager.has(url)).toBe(true);
-    expect(cacheManager.has("missing")).toBe(false);
+    expect(cacheManager.has('missing')).toBe(false);
   });
 
-  it("should clear cache", () => {
-    const url = "https://example.com";
-    cacheManager.set(url, { url, html: "", success: true });
+  it('should clear cache', () => {
+    const url = 'https://example.com';
+    cacheManager.set(url, { url, html: '', success: true });
 
     cacheManager.clear();
     expect(cacheManager.has(url)).toBe(false);
   });
 
-  it("should normalize URLs for cache keys", () => {
-    const url1 = "https://example.com?a=1&b=2";
-    const url2 = "https://example.com?b=2&a=1";
-    const result: CrawlResult = { url: url1, html: "", success: true };
+  it('should normalize URLs for cache keys', () => {
+    const url1 = 'https://example.com?a=1&b=2';
+    const url2 = 'https://example.com?b=2&a=1';
+    const result: CrawlResult = { url: url1, html: '', success: true };
 
     cacheManager.set(url1, result);
 

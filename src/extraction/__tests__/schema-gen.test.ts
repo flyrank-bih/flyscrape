@@ -1,57 +1,57 @@
-import { describe, expect, it } from "vitest";
-import type { JsonSchema } from "../interfaces";
-import { SchemaGenerator } from "../schema-gen";
+import { describe, expect, it } from 'vitest';
+import type { JsonSchema } from '../interfaces';
+import { SchemaGenerator } from '../schema-gen';
 
-describe("SchemaGenerator", () => {
+describe('SchemaGenerator', () => {
   const schema: JsonSchema = {
-    type: "object",
+    type: 'object',
     properties: {
-      name: { type: "string" },
-      age: { type: "number" },
+      name: { type: 'string' },
+      age: { type: 'number' },
     },
-    required: ["name"],
+    required: ['name'],
   };
 
-  it("should validate correct data", () => {
-    const data = { name: "John", age: 30 };
+  it('should validate correct data', () => {
+    const data = { name: 'John', age: 30 };
     expect(SchemaGenerator.validate(data, schema)).toBe(true);
   });
 
-  it("should fail on missing required field", () => {
+  it('should fail on missing required field', () => {
     const data = { age: 30 };
     expect(() => SchemaGenerator.validate(data, schema)).toThrow(
-      "Missing required field: name"
+      'Missing required field: name',
     );
   });
 
-  it("should fail on incorrect type", () => {
-    const data = { name: "John", age: "30" };
+  it('should fail on incorrect type', () => {
+    const data = { name: 'John', age: '30' };
     expect(() => SchemaGenerator.validate(data, schema)).toThrow(
-      "Expected number, got string"
+      'Expected number, got string',
     );
   });
 
-  it("should generate prompt string", () => {
+  it('should generate prompt string', () => {
     const str = SchemaGenerator.toPromptString(schema);
     expect(str).toContain('"name":');
     expect(str).toContain('"type": "string"');
   });
 
-  it("should create object schema helper", () => {
+  it('should create object schema helper', () => {
     const s = SchemaGenerator.createObject(
       {
-        field: { type: "string" },
+        field: { type: 'string' },
       },
-      ["field"]
+      ['field'],
     );
 
-    expect(s.type).toBe("object");
-    expect(s.required).toContain("field");
+    expect(s.type).toBe('object');
+    expect(s.required).toContain('field');
   });
 
-  it("should create array schema helper", () => {
-    const s = SchemaGenerator.createArray({ type: "string" });
-    expect(s.type).toBe("array");
-    expect(s.items?.type).toBe("string");
+  it('should create array schema helper', () => {
+    const s = SchemaGenerator.createArray({ type: 'string' });
+    expect(s.type).toBe('array');
+    expect(s.items?.type).toBe('string');
   });
 });

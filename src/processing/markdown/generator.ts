@@ -1,7 +1,7 @@
-import type { Options as TurndownOptions } from "turndown";
-import { type CleanHtmlOptions, cleanHtml } from "../../utils/dom";
-import { convertToCitations, formatReferences } from "./citations";
-import { createTurndownService } from "./turndown-ext";
+import type { Options as TurndownOptions } from 'turndown';
+import { type CleanHtmlOptions, cleanHtml } from '../../utils/dom';
+import { convertToCitations, formatReferences } from './citations';
+import { createTurndownService } from './turndown-ext';
 
 export interface MarkdownGeneratorOptions {
   /**
@@ -25,6 +25,12 @@ export interface MarkdownGeneratorOptions {
    * @default true
    */
   skipInternalLinks?: boolean;
+
+  /**
+   * Custom transformer function to override default markdown generation.
+   * This allows implementing custom strategies for HTML to Markdown conversion.
+   */
+  customTransformer?: (html: string) => string;
 }
 
 export interface MarkdownGenerationResult {
@@ -54,18 +60,23 @@ export interface MarkdownGenerationResult {
  */
 export function generateMarkdown(
   html: string,
-  options: MarkdownGeneratorOptions = {}
+  options: MarkdownGeneratorOptions = {},
 ): MarkdownGenerationResult {
   if (!html) {
-    return { rawMarkdown: "" };
+    return { rawMarkdown: '' };
   }
 
   // 1. Clean HTML
   const cleanedHtml = cleanHtml(html, options.cleanOptions);
 
   // 2. Convert to Markdown
-  const service = createTurndownService(options.turndownOptions);
-  const rawMarkdown = service.turndown(cleanedHtml);
+  let rawMarkdown = '';
+  if (options.customTransformer) {
+    rawMarkdown = options.customTransformer(cleanedHtml);
+  } else {
+    const service = createTurndownService(options.turndownOptions);
+    rawMarkdown = service.turndown(cleanedHtml);
+  }
 
   // 3. Generate Citations (if enabled)
   if (options.enableCitations !== false) {

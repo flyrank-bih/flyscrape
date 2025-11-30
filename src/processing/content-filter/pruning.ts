@@ -1,5 +1,5 @@
-import { BM25 } from "./bm25";
-import type { PruningOptions, ScoredChunk } from "./interfaces";
+import { BM25 } from './bm25';
+import type { PruningOptions, ScoredChunk } from './interfaces';
 
 /**
  * Prunes content chunks based on relevance to a query using BM25.
@@ -10,13 +10,13 @@ import type { PruningOptions, ScoredChunk } from "./interfaces";
  */
 export function pruneContent(
   chunks: string[],
-  options: PruningOptions
+  options: PruningOptions,
 ): ScoredChunk[] {
   if (!chunks || chunks.length === 0) {
     return [];
   }
 
-  if (!options.query || options.query.trim() === "") {
+  if (!options.query || options.query.trim() === '') {
     return [];
   }
 
@@ -34,7 +34,7 @@ export function pruneContent(
   // Filter by threshold if provided
   if (options.threshold !== undefined) {
     scoredChunks = scoredChunks.filter(
-      (chunk) => chunk.score >= (options.threshold as number)
+      (chunk) => chunk.score >= (options.threshold as number),
     );
   }
 

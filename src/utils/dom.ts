@@ -1,4 +1,5 @@
-import * as cheerio from "cheerio";
+/** biome-ignore-all lint/suspicious/noExplicitAny: <Technical debt> */
+import * as cheerio from 'cheerio';
 
 /**
  * Loads HTML content into a Cheerio instance.
@@ -40,32 +41,32 @@ export interface CleanHtmlOptions {
  */
 export function cleanHtml(
   html: string | cheerio.CheerioAPI,
-  options: CleanHtmlOptions = {}
+  options: CleanHtmlOptions = {},
 ): string {
-  const $ = typeof html === "string" ? loadHtml(html) : html;
+  const $ = typeof html === 'string' ? loadHtml(html) : html;
   let excludeTags = options.excludeTags || [
-    "script",
-    "style",
-    "noscript",
-    "iframe",
-    "svg",
-    "link",
-    "meta",
+    'script',
+    'style',
+    'noscript',
+    'iframe',
+    'svg',
+    'link',
+    'meta',
   ];
 
   if (options.onlyMainContent) {
-    excludeTags = [...excludeTags, "nav", "footer", "header", "aside", "menu"];
+    excludeTags = [...excludeTags, 'nav', 'footer', 'header', 'aside', 'menu'];
   }
 
   // Remove excluded tags
-  $(excludeTags.join(",")).remove();
+  $(excludeTags.join(',')).remove();
 
   // Remove comments if requested
   if (options.removeComments !== false) {
-    $("*")
+    $('*')
       .contents()
       .each((_, elem) => {
-        if (elem.type === "comment") {
+        if (elem.type === 'comment') {
           $(elem).remove();
         }
       });
@@ -90,11 +91,11 @@ export function extractText(html: string): string {
  * @returns Array of link URLs.
  */
 export function extractLinks(html: string | cheerio.CheerioAPI): string[] {
-  const $ = typeof html === "string" ? loadHtml(html) : html;
+  const $ = typeof html === 'string' ? loadHtml(html) : html;
   const links: string[] = [];
 
-  $("a").each((_, elem) => {
-    const href = $(elem).attr("href");
+  $('a').each((_, elem) => {
+    const href = $(elem).attr('href');
     if (href) {
       links.push(href);
     }
@@ -112,17 +113,120 @@ export function extractMetadata(html: string | cheerio.CheerioAPI): {
   title: string;
   description?: string;
   keywords?: string;
+  author?: string;
+  publishedTime?: string;
+  og?: Record<string, string>;
+  twitter?: Record<string, string>;
 } {
-  const $ = typeof html === "string" ? loadHtml(html) : html;
-  const title = $("title").text();
-  const description = $('meta[name="description"]').attr("content");
-  const keywords = $('meta[name="keywords"]').attr("content");
+  const $ = typeof html === 'string' ? loadHtml(html) : html;
+  const title = $('title').text();
+  const description = $('meta[name="description"]').attr('content');
+  const keywords = $('meta[name="keywords"]').attr('content');
+  const author = $('meta[name="author"]').attr('content');
+  const publishedTime =
+    $('meta[property="article:published_time"]').attr('content') ||
+    $('meta[name="date"]').attr('content');
+
+  // Extract OpenGraph tags
+  const og: Record<string, string> = {};
+  $('meta[property^="og:"]').each((_, elem) => {
+    const property = $(elem).attr('property');
+    const content = $(elem).attr('content');
+    if (property && content) {
+      og[property.replace('og:', '')] = content;
+    }
+  });
+
+  // Extract Twitter Card tags
+  const twitter: Record<string, string> = {};
+  $('meta[name^="twitter:"]').each((_, elem) => {
+    const name = $(elem).attr('name');
+    const content = $(elem).attr('content');
+    if (name && content) {
+      twitter[name.replace('twitter:', '')] = content;
+    }
+  });
 
   return {
     title,
     description,
     keywords,
+    author,
+    publishedTime,
+    og,
+    twitter,
   };
+}
+
+/**
+ * Extracts media resources (images, videos, audio) from HTML.
+ * @param html The HTML content or Cheerio instance.
+ * @returns Object containing lists of media resources.
+ */
+export function extractMedia(html: string | cheerio.CheerioAPI) {
+  const $ = typeof html === 'string' ? loadHtml(html) : html;
+  const images: any[] = [];
+  const videos: any[] = [];
+  const audio: any[] = [];
+
+  // Images
+  $('img').each((_, elem) => {
+    const src = $(elem).attr('src');
+    if (src) {
+      images.push({
+        type: 'image',
+        src,
+        alt: $(elem).attr('alt'),
+        srcset: $(elem).attr('srcset'),
+        width: $(elem).attr('width'),
+        height: $(elem).attr('height'),
+      });
+    }
+  });
+
+  // Videos
+  $('video').each((_, elem) => {
+    const src = $(elem).attr('src');
+    const poster = $(elem).attr('poster');
+    const sources: string[] = [];
+    $(elem)
+      .find('source')
+      .each((_, source) => {
+        const sourceSrc = $(source).attr('src');
+        if (sourceSrc) sources.push(sourceSrc);
+      });
+
+    if (src || sources.length > 0) {
+      videos.push({
+        type: 'video',
+        src: src || sources[0],
+        poster,
+        sources,
+      });
+    }
+  });
+
+  // Audio
+  $('audio').each((_, elem) => {
+    const src = $(elem).attr('src');
+    const sources: string[] = [];
+    $(elem)
+      .find('source')
+      .each((_, source) => {
+        const sourceSrc = $(source).attr('src');
+        if (sourceSrc) sources.push(sourceSrc);
+      });
+
+    if (src || sources.length > 0) {
+      audio.push({
+        type: 'audio',
+        src: src || sources[0],
+        sources,
+      });
+    }
+  });
+
+  return { images, videos, audio };
 }
 
 /**

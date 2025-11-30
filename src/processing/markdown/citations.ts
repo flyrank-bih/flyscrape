@@ -4,14 +4,14 @@
  * @returns Formatted reference list string.
  */
 export function formatReferences(references: string[]): string {
-  if (references.length === 0) return "";
+  if (references.length === 0) return '';
 
-  const lines = ["\n\n## References\n"];
+  const lines = ['\n\n## References\n'];
   references.forEach((ref, index) => {
     lines.push(`${index + 1}. ${ref}`);
   });
 
-  return lines.join("\n");
+  return lines.join('\n');
 }
 
 /**

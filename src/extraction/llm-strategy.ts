@@ -1,7 +1,7 @@
 /** biome-ignore-all lint/suspicious/noExplicitAny: <Technical debt> */
-import { tokenCounter } from "../utils/token";
-import type { ExtractionResult, JsonSchema, LLMProvider } from "./interfaces";
-import { SchemaGenerator } from "./schema-gen";
+import { tokenCounter } from '../utils/token';
+import type { ExtractionResult, JsonSchema, LLMProvider } from './interfaces';
+import { SchemaGenerator } from './schema-gen';
 
 /**
  * Extracts structured data from content using an LLM.
@@ -16,16 +16,16 @@ export async function extractWithLlm<T = any>(
   content: string,
   schema: JsonSchema,
   provider: LLMProvider,
-  options: { instruction?: string; temperature?: number } = {}
+  options: { instruction?: string; temperature?: number } = {},
 ): Promise<ExtractionResult<T>> {
   if (!content || !content.trim()) {
-    return { data: null as any, metadata: { error: "Empty content" } };
+    return { data: null as any, metadata: { error: 'Empty content' } };
   }
 
   const schemaString = SchemaGenerator.toPromptString(schema);
   const instruction =
     options.instruction ||
-    "Extract the following information from the provided text. Return ONLY the raw JSON object matching the schema, with no markdown formatting or explanation.";
+    'Extract the following information from the provided text. Return ONLY the raw JSON object matching the schema, with no markdown formatting or explanation.';
 
   const prompt = `${instruction}
 
@@ -53,14 +53,14 @@ Output JSON:`;
     // Clean up the response to ensure it's valid JSON
     // Remove markdown code blocks if present
     let cleanResponse = response.trim();
-    if (cleanResponse.startsWith("```json")) {
+    if (cleanResponse.startsWith('```json')) {
       cleanResponse = cleanResponse
-        .replace(/^```json\s*/, "")
-        .replace(/\s*```$/, "");
-    } else if (cleanResponse.startsWith("```")) {
+        .replace(/^```json\s*/, '')
+        .replace(/\s*```$/, '');
+    } else if (cleanResponse.startsWith('```')) {
       cleanResponse = cleanResponse
-        .replace(/^```\s*/, "")
-        .replace(/\s*```$/, "");
+        .replace(/^```\s*/, '')
+        .replace(/\s*```$/, '');
     }
 
     let data: T;
@@ -70,8 +70,8 @@ Output JSON:`;
       throw new Error(
         `Failed to parse LLM response as JSON: ${cleanResponse.substring(
           0,
-          100
-        )}...`
+          100,
+        )}...`,
       );
     }
 
@@ -79,7 +79,7 @@ Output JSON:`;
     try {
       SchemaGenerator.validate(data, schema);
     } catch (e) {
-      console.warn("Schema validation warning:", e);
+      console.warn('Schema validation warning:', e);
       // We don't fail strictly here, but return the data with a warning?
       // Or we could re-throw. For now, let's just proceed as LLMs can be slightly off.
     }
@@ -88,7 +88,7 @@ Output JSON:`;
       data,
       metadata: {
         executionTimeMs,
-        provider: "custom", // Could be retrieved from provider if interface allowed
+        provider: 'custom', // Could be retrieved from provider if interface allowed
         usage: {
           inputTokens,
           outputTokens,

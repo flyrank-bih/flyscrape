@@ -1,4 +1,4 @@
-import type { JsonSchema } from "./interfaces";
+import type { JsonSchema } from './interfaces';
 
 /**
  * Utility for generating and manipulating JSON schemas.
@@ -22,11 +22,11 @@ export class SchemaGenerator {
    * @param schema The schema to validate against.
    * @returns True if valid, throws error if invalid.
    */
-  
-// biome-ignore lint/suspicious/noExplicitAny: <Technical debt>
-static  validate(data: any, schema: JsonSchema): boolean {
-    if (schema.type === "object" && schema.properties) {
-      if (typeof data !== "object" || data === null) {
+
+  // biome-ignore lint/suspicious/noExplicitAny: <Technical debt>
+  static validate(data: any, schema: JsonSchema): boolean {
+    if (schema.type === 'object' && schema.properties) {
+      if (typeof data !== 'object' || data === null) {
         throw new Error(`Expected object, got ${typeof data}`);
       }
 
@@ -45,23 +45,23 @@ static  validate(data: any, schema: JsonSchema): boolean {
           SchemaGenerator.validate(data[key], propSchema);
         }
       }
-    } else if (schema.type === "array" && schema.items) {
+    } else if (schema.type === 'array' && schema.items) {
       if (!Array.isArray(data)) {
         throw new Error(`Expected array, got ${typeof data}`);
       }
       for (const item of data) {
         SchemaGenerator.validate(item, schema.items);
       }
-    } else if (schema.type === "string") {
-      if (typeof data !== "string") {
+    } else if (schema.type === 'string') {
+      if (typeof data !== 'string') {
         throw new Error(`Expected string, got ${typeof data}`);
       }
-    } else if (schema.type === "number" || schema.type === "integer") {
-      if (typeof data !== "number") {
+    } else if (schema.type === 'number' || schema.type === 'integer') {
+      if (typeof data !== 'number') {
         throw new Error(`Expected number, got ${typeof data}`);
       }
-    } else if (schema.type === "boolean") {
-      if (typeof data !== "boolean") {
+    } else if (schema.type === 'boolean') {
+      if (typeof data !== 'boolean') {
         throw new Error(`Expected boolean, got ${typeof data}`);
       }
     }
@@ -74,10 +74,10 @@ static  validate(data: any, schema: JsonSchema): boolean {
    */
   static createObject(
     properties: Record<string, JsonSchema>,
-    required?: string[]
+    required?: string[],
   ): JsonSchema {
     return {
-      type: "object",
+      type: 'object',
       properties,
       required,
     };
@@ -88,7 +88,7 @@ static  validate(data: any, schema: JsonSchema): boolean {
    */
   static createArray(itemSchema: JsonSchema): JsonSchema {
     return {
-      type: "array",
+      type: 'array',
       items: itemSchema,
     };
   }

@@ -8,7 +8,7 @@
  */
 export function regexChunk(
   text: string,
-  patterns: RegExp[] = [/\n\n/]
+  patterns: RegExp[] = [/\n\n/],
 ): string[] {
   if (!text) return [];
 

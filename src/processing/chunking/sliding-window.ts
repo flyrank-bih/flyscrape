@@ -1,5 +1,5 @@
-import type { TiktokenModel } from "js-tiktoken";
-import { tokenCounter } from "../../utils/token";
+import type { TiktokenModel } from 'js-tiktoken';
+import { tokenCounter } from '../../utils/token';
 
 export interface SlidingWindowOptions {
   /**
@@ -37,10 +37,10 @@ export interface SlidingWindowOptions {
  */
 export function slidingWindowChunk(
   text: string,
-  options: SlidingWindowOptions
+  options: SlidingWindowOptions,
 ): string[] {
   if (!text) return [];
-  if (options.windowSize <= 0) throw new Error("windowSize must be positive");
+  if (options.windowSize <= 0) throw new Error('windowSize must be positive');
 
   const { windowSize, model } = options;
 
@@ -56,7 +56,7 @@ export function slidingWindowChunk(
 
   if (step <= 0)
     throw new Error(
-      "Step size must be positive. Check windowSize and overlap."
+      'Step size must be positive. Check windowSize and overlap.',
     );
 
   const tokens = tokenCounter.encode(text, model);

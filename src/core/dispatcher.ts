@@ -1,5 +1,5 @@
-import type { AsyncWebCrawler } from "./crawler";
-import type { CrawlOptions, CrawlResult } from "./types";
+import type { AsyncWebCrawler } from './crawler';
+import type { CrawlOptions, CrawlResult } from './types';
 
 /**
  * Manages concurrent crawling tasks.
@@ -26,7 +26,7 @@ export class Dispatcher {
    */
   async schedule(
     url: string,
-    options: Partial<CrawlOptions> = {}
+    options: Partial<CrawlOptions> = {},
   ): Promise<CrawlResult> {
     return new Promise((resolve, reject) => {
       this.queue.push({ url, options, resolve, reject });
@@ -63,7 +63,7 @@ export class Dispatcher {
    */
   async crawlMany(
     urls: string[],
-    options: Partial<CrawlOptions> = {}
+    options: Partial<CrawlOptions> = {},
   ): Promise<CrawlResult[]> {
     const promises = urls.map((url) => this.schedule(url, options));
     return Promise.all(promises);

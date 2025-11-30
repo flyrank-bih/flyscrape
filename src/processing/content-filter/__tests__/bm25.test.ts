@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import { BM25 } from '../bm25';
 
 describe('BM25', () => {
@@ -17,7 +17,7 @@ describe('BM25', () => {
   it('should score documents based on relevance', () => {
     const bm25 = new BM25(corpus);
     const scores = bm25.score('fox');
-    
+
     // "fox" appears in doc 0 and 1. Doc 1 is shorter, so it should score higher (length normalization).
     expect(scores[1]).toBeGreaterThan(scores[0]);
     expect(scores[0]).toBeGreaterThan(0);
@@ -48,27 +48,27 @@ describe('BM25', () => {
     const specialCorpus = [
       'Node.js is awesome!',
       'Do you like C++?',
-      'Python_language'
+      'Python_language',
     ];
     const bm25 = new BM25(specialCorpus);
-    
+
     // Depending on tokenizer implementation, "node.js" might become "node js" or "node", "js"
     // Our simple tokenizer splits by non-alphanumeric, so "node.js" -> "node", "js"
-    
+
     const scores = bm25.score('node');
     expect(scores[0]).toBeGreaterThan(0);
   });
 
   it('should respect custom options', () => {
     // With b=0, length normalization is disabled.
-    // "fox" in doc 0 and 1 should have same score if length norm is off? 
+    // "fox" in doc 0 and 1 should have same score if length norm is off?
     // Wait, doc 0 has "fox" once, doc 1 has "fox" once.
     // Term frequency is same (1).
     // If b=0, length doesn't matter.
-    
+
     const bm25 = new BM25(corpus, { b: 0 });
     const scores = bm25.score('fox');
-    
+
     // Since TF is 1 in both, and b=0 removes length penalty, scores should be equal.
     expect(scores[0]).toBeCloseTo(scores[1]);
   });

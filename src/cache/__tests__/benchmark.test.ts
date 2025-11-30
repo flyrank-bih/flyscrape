@@ -1,10 +1,10 @@
-import fs from "node:fs";
-import path from "node:path";
-import { afterAll, beforeAll, describe, expect, it } from "vitest";
-import { CacheManager } from "../index";
+import fs from 'node:fs';
+import path from 'node:path';
+import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { CacheManager } from '../index';
 
-describe("CacheManager Benchmark", () => {
-  const TEST_CACHE_DIR = path.join(__dirname, "bench_cache");
+describe('CacheManager Benchmark', () => {
+  const TEST_CACHE_DIR = path.join(__dirname, 'bench_cache');
   const ITERATIONS = 100; // Reduced for quicker execution during dev, increase for real bench
 
   beforeAll(() => {
@@ -19,22 +19,22 @@ describe("CacheManager Benchmark", () => {
     }
   });
 
-  it("should benchmark memory-only operations", () => {
+  it('should benchmark memory-only operations', () => {
     const cache = new CacheManager(ITERATIONS * 2);
 
     const startWrite = performance.now();
     for (let i = 0; i < ITERATIONS; i++) {
       cache.set(`http://example.com/${i}`, {
         url: `http://example.com/${i}`,
-        html: "<html></html>",
+        html: '<html></html>',
         success: true,
       });
     }
     const endWrite = performance.now();
     console.log(
       `Memory Write (${ITERATIONS} ops): ${(endWrite - startWrite).toFixed(
-        2
-      )}ms`
+        2,
+      )}ms`,
     );
 
     const startRead = performance.now();
@@ -43,26 +43,26 @@ describe("CacheManager Benchmark", () => {
     }
     const endRead = performance.now();
     console.log(
-      `Memory Read (${ITERATIONS} ops): ${(endRead - startRead).toFixed(2)}ms`
+      `Memory Read (${ITERATIONS} ops): ${(endRead - startRead).toFixed(2)}ms`,
     );
   });
 
-  it("should benchmark hybrid (disk+memory) operations", () => {
+  it('should benchmark hybrid (disk+memory) operations', () => {
     const cache = new CacheManager(ITERATIONS * 2, TEST_CACHE_DIR);
 
     const startWrite = performance.now();
     for (let i = 0; i < ITERATIONS; i++) {
       cache.set(`http://example.com/${i}`, {
         url: `http://example.com/${i}`,
-        html: "<html></html>",
+        html: '<html></html>',
         success: true,
       });
     }
     const endWrite = performance.now();
     console.log(
       `Hybrid Write (${ITERATIONS} ops): ${(endWrite - startWrite).toFixed(
-        2
-      )}ms`
+        2,
+      )}ms`,
     );
 
     // New instance to force disk read
@@ -77,7 +77,7 @@ describe("CacheManager Benchmark", () => {
     console.log(
       `Hybrid Read (Disk Hit) (${ITERATIONS} ops): ${(
         endRead - startRead
-      ).toFixed(2)}ms`
+      ).toFixed(2)}ms`,
     );
   });
 });

@@ -1,9 +1,9 @@
-import crypto from "node:crypto";
-import fs from "node:fs";
-import path from "node:path";
-import { LRUCache } from "lru-cache";
-import type { CrawlResult } from "../core/types";
-import { normalizeUrl } from "../utils/url";
+import crypto from 'node:crypto';
+import fs from 'node:fs';
+import path from 'node:path';
+import { LRUCache } from 'lru-cache';
+import type { CrawlResult } from '../core/types';
+import { normalizeUrl } from '../utils/url';
 
 /**
  * Hybrid cache (Memory + Disk) for crawl results.
@@ -30,7 +30,7 @@ export class CacheManager {
   private getFilePath(key: string): string | undefined {
     if (!this.cacheDir) return undefined;
     // Use hash of URL for filename to avoid filesystem issues
-    const hash = crypto.createHash("md5").update(key).digest("hex");
+    const hash = crypto.createHash('md5').update(key).digest('hex');
     return path.join(this.cacheDir, `${hash}.json`);
   }
 
@@ -49,7 +49,7 @@ export class CacheManager {
       const filePath = this.getFilePath(normalizedKey);
       if (filePath && fs.existsSync(filePath)) {
         try {
-          const content = fs.readFileSync(filePath, "utf-8");
+          const content = fs.readFileSync(filePath, 'utf-8');
           const result = JSON.parse(content) as CrawlResult;
 
           // Hydrate memory cache
@@ -78,7 +78,7 @@ export class CacheManager {
       const filePath = this.getFilePath(normalizedKey);
       if (filePath) {
         try {
-          fs.writeFileSync(filePath, JSON.stringify(result), "utf-8");
+          fs.writeFileSync(filePath, JSON.stringify(result), 'utf-8');
         } catch (_) {
           // Ignore write errors
         }
@@ -111,7 +111,7 @@ export class CacheManager {
       try {
         const files = fs.readdirSync(this.cacheDir);
         for (const file of files) {
-          if (file.endsWith(".json")) {
+          if (file.endsWith('.json')) {
             fs.unlinkSync(path.join(this.cacheDir, file));
           }
         }

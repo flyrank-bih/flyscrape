@@ -1,11 +1,11 @@
 /** biome-ignore-all lint/suspicious/noExplicitAny: <Technical debt> */
-"use client";
+'use client';
 
-import { useState } from "react";
-import { scrapeUrl } from "./actions";
+import { useState } from 'react';
+import { scrapeUrl } from './actions';
 
 export default function Home() {
-  const [url, setUrl] = useState("https://example.com");
+  const [url, setUrl] = useState('https://example.com');
   const [contentOnly, setContentOnly] = useState(false);
   const [excludeMedia, setExcludeMedia] = useState(false);
   const [optimizeWithAI, setOptimizeWithAI] = useState(false);
@@ -54,7 +54,7 @@ export default function Home() {
             disabled={loading}
             className="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
           >
-            {loading ? "Scraping..." : "Scrape"}
+            {loading ? 'Scraping...' : 'Scrape'}
           </button>
         </div>
 
