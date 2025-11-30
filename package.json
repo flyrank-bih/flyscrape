@@ -1,6 +1,6 @@
 {
   "name": "@flyrank/flyscrape",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "description": "A powerful, modular web scraping and crawling library for Node.js, inspired by crawl4ai. Features stealth mode, LLM extraction, and markdown processing.",
   "keywords": [
     "crawler",
