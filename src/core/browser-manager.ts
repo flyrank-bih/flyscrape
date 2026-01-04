@@ -26,7 +26,8 @@ export class BrowserManager {
 
     const launchOptions = {
       headless: this.config.headless ?? true,
-      args: this.config.args || [],
+      args: [...(this.config.args || [])],
+      ignoreDefaultArgs: ['--enable-automation'],
       proxy: this.config.proxy
         ? {
             server: this.config.proxy.server,
@@ -50,6 +51,9 @@ export class BrowserManager {
     }
 
     if (this.config.stealth) {
+      // Add disable-http2 to avoid common fingerprinting (ERR_HTTP2_PROTOCOL_ERROR)
+      launchOptions.args.push('--disable-http2');
+
       // Use playwright-extra with stealth plugin
       const launcher = enableStealth('chromium');
       this.browser = await launcher.launch(launchOptions);

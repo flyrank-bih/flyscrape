@@ -39,7 +39,8 @@ export function enableStealth(engine: BrowserEngine = 'chromium') {
   // - window.outerWidth/outerHeight
   // - generic sanitizer (stripping internal properties)
   // - ...and more
-  browserLauncher.use(StealthPlugin());
+  const stealth = StealthPlugin();
+  browserLauncher.use(stealth);
 
   return browserLauncher;
 }

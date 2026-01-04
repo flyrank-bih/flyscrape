@@ -18,7 +18,7 @@ First off, thank you for considering contributing to FlyScrape! We value your ti
 ## 🚀 Getting Started
 
 ### 1. Fork the Repository
-Start by forking the [FlyScrape repository](https://github.com/flyrank/flyscrape) to your GitHub account.
+Start by forking the [FlyScrape repository](https://github.com/flyrank-bih/flyscrape) to your GitHub account.
 
 ### 2. Clone Your Fork
 Clone your forked repository to your local machine:
@@ -120,7 +120,7 @@ When you're ready to submit your changes:
 
 Found a bug? Great! (Well, not great that it's broken, but great that you found it).
 
-1.  Check the [existing issues](https://github.com/flyrank/flyscrape/issues) to see if it has already been reported.
+1.  Check the [existing issues](https://github.com/flyrank-bih/flyscrape/issues) to see if it has already been reported.
 2.  Open a new issue with a clear title and description.
 3.  Include a **reproduction code snippet** or steps to reproduce the issue.
 4.  Mention your OS, Node.js version, and FlyScrape version.

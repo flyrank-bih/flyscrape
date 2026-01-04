@@ -9,6 +9,7 @@ export default function Home() {
   const [contentOnly, setContentOnly] = useState(false);
   const [excludeMedia, setExcludeMedia] = useState(false);
   const [optimizeWithAI, setOptimizeWithAI] = useState(false);
+  const [stealth, setStealth] = useState(false);
   const [result, setResult] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -22,6 +23,7 @@ export default function Home() {
         contentOnly,
         excludeMedia,
         optimizeWithAI,
+        stealth,
       });
       if (response.success) {
         setResult(response.data);
@@ -59,6 +61,16 @@ export default function Home() {
         </div>
 
         <div className="flex flex-wrap gap-6 mb-8 p-4 bg-gray-50 rounded border border-gray-200">
+          <label className="flex items-center gap-2 cursor-pointer select-none">
+            <input
+              type="checkbox"
+              checked={stealth}
+              onChange={(e) => setStealth(e.target.checked)}
+              className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+            />
+            <span className="font-medium">Stealth Mode (Fixes ERR_HTTP2)</span>
+          </label>
+
           <label className="flex items-center gap-2 cursor-pointer select-none">
             <input
               type="checkbox"
