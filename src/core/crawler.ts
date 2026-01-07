@@ -1,3 +1,4 @@
+import { gotScraping } from 'got-scraping';
 import * as fs from 'node:fs/promises';
 import { CacheManager } from '../cache';
 import {
@@ -70,6 +71,13 @@ export class AsyncWebCrawler {
    */
   async close(): Promise<void> {
     await this.browserManager.close();
+  }
+
+  /**
+   * Closes a specific session context.
+   */
+  async closeSession(sessionId: string): Promise<void> {
+    await this.browserManager.closeSession(sessionId);
   }
 
   /**
@@ -341,9 +349,17 @@ export class AsyncWebCrawler {
         screenshot,
       );
 
-      return { ...result, statusCode };
+      // Get cookies to return in result
+      // biome-ignore lint/suspicious/noExplicitAny: <Technical debt>
+      const cookies = await context.cookies();
+
+      return { ...result, statusCode, cookies: cookies as any };
     } finally {
-      await context.close();
+      if (options.session_id) {
+        await page.close();
+      } else {
+        await context.close();
+      }
     }
   }
 
@@ -363,11 +379,14 @@ export class AsyncWebCrawler {
       const path = options.url.slice(7);
       html = await fs.readFile(path, 'utf-8');
     } else {
-      const response = await fetch(options.url, {
+      // Use got-scraping for robust TLS fingerprinting and browser-like headers
+      const response = await gotScraping(options.url, {
         headers: options.headers,
+        throwHttpErrors: false,
+        retry: { limit: 2 },
       });
-      html = await response.text();
-      statusCode = response.status;
+      html = response.body;
+      statusCode = response.statusCode;
     }
 
     const result = await this.processPageContent(

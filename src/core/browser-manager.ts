@@ -13,6 +13,7 @@ import type { BrowserConfig } from './types';
 export class BrowserManager {
   private browser: Browser | null = null;
   private config: BrowserConfig;
+  private sessions = new Map<string, BrowserContext>();
 
   constructor(config: BrowserConfig = {}) {
     this.config = config;
@@ -91,6 +92,34 @@ export class BrowserManager {
   }
 
   /**
+   * Gets an existing session context or creates a new one.
+   */
+  async getSessionContext(
+    sessionId: string,
+    userAgent?: string,
+  ): Promise<BrowserContext> {
+    if (this.sessions.has(sessionId)) {
+      // biome-ignore lint/style/noNonNullAssertion: Checked with has()
+      return this.sessions.get(sessionId)!;
+    }
+
+    const context = await this.newContext(userAgent);
+    this.sessions.set(sessionId, context);
+    return context;
+  }
+
+  /**
+   * Closes a specific session context.
+   */
+  async closeSession(sessionId: string): Promise<void> {
+    const context = this.sessions.get(sessionId);
+    if (context) {
+      await context.close();
+      this.sessions.delete(sessionId);
+    }
+  }
+
+  /**
    * Creates a new page in a new context.
    */
   async newPage(): Promise<{ page: Page; context: BrowserContext }> {
@@ -103,6 +132,16 @@ export class BrowserManager {
    * Closes the browser instance.
    */
   async close(): Promise<void> {
+    // Close all active sessions
+    for (const context of Array.from(this.sessions.values())) {
+      try {
+        await context.close();
+      } catch (error) {
+        // Ignore errors during cleanup
+      }
+    }
+    this.sessions.clear();
+
     if (this.browser) {
       await this.browser.close();
       this.browser = null;

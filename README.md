@@ -122,7 +122,61 @@ const result = await crawler.arun("https://blog.example.com/guide", {
 ## 🔬 Advanced Usage Examples
 
 <details>
-<summary>🛠️ <strong>Custom Markdown Strategies</strong></summary>
+<summary>🔄 <strong>Session Persistence (Anti-Detection)</strong></summary>
+
+Keep your session alive across multiple requests to look like a real user and avoid being blocked.
+
+```typescript
+const sessionId = 'my-session-1';
+
+// First request: Creates session, saves cookies/local storage
+await crawler.arun("https://example.com/login", { 
+  session_id: sessionId 
+});
+
+// Second request: Reuses the same session (cookies are preserved!)
+await crawler.arun("https://example.com/dashboard", { 
+  session_id: sessionId 
+});
+
+// Clean up when done
+await crawler.closeSession(sessionId);
+```
+
+</details>
+
+<details>
+<summary>⚡ <strong>TLS Client / Fast Mode</strong></summary>
+
+Use `got-scraping` under the hood to mimic real browser TLS fingerprints without the overhead of a full browser.
+
+```typescript
+// Fast mode (no browser, but stealthy TLS fingerprint)
+const result = await crawler.arun("https://example.com", {
+  jsExecution: false // Disables Playwright, enables got-scraping
+});
+```
+
+</details>
+
+<details>
+<summary>� <strong>Stealth Mode</strong></summary>
+
+Enable advanced anti-detection features to bypass WAFs and bot detection systems.
+
+```typescript
+const crawler = new AsyncWebCrawler({
+  stealth: true, // Enable stealth mode
+  headless: true,
+});
+
+await crawler.start();
+```
+
+</details>
+
+<details>
+<summary>�🛠️ <strong>Custom Markdown Strategies</strong></summary>
 
 Need full control? Provide a `customTransformer` to define exactly how HTML maps to Markdown.
 

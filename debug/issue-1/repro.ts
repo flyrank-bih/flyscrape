@@ -16,6 +16,9 @@ async function main() {
 
     if (result.success) {
       console.log('Success!');
+      if (result.cookies) {
+        console.log('Cookies found:', result.cookies.length);
+      }
       console.log(result.markdown?.slice(0, 500));
     } else {
       console.error('Failed:', result.error);

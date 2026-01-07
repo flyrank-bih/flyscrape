@@ -71,6 +71,12 @@ export interface CrawlOptions {
     onPageCreated?: (page: Page) => Promise<void>;
     onLoad?: (page: Page) => Promise<void>;
   };
+
+  /**
+   * Session ID for persistent browser contexts.
+   * If provided, the crawler will reuse cookies and local storage across requests with the same session_id.
+   */
+  session_id?: string;
 }
 
 export interface MediaResource {
@@ -111,6 +117,16 @@ export interface CrawlResult {
   extractedContent?: any;
   // biome-ignore lint/suspicious/noExplicitAny: <Technical debt>
   filteredContent?: any;
+  cookies?: Array<{
+    name: string;
+    value: string;
+    domain: string;
+    path: string;
+    expires: number;
+    httpOnly: boolean;
+    secure: boolean;
+    sameSite: 'Strict' | 'Lax' | 'None';
+  }>;
 }
 
 export type PageAction = (page: Page) => Promise<void>;
