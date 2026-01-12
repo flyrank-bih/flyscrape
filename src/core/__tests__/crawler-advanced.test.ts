@@ -1,11 +1,46 @@
+import { Impit } from 'impit';
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import type { CSSSchema } from '../../extraction/interfaces';
 import { AsyncWebCrawler } from '../crawler';
 
+// Auto-mock impit
+vi.mock('impit');
+
+const mockFetch = vi.fn();
+
 describe('AsyncWebCrawler Advanced Features', () => {
   let crawler: AsyncWebCrawler;
+  const html = `
+    <html>
+      <body>
+        <h1>Article Title</h1>
+        <div class="content">
+          <p>Main content paragraph.</p>
+          <a href="https://example.com">Link 1</a>
+          <span>$100.00</span>
+        </div>
+        <div class="sidebar">
+          <p>Ad content</p>
+        </div>
+      </body>
+    </html>
+  `;
 
   beforeAll(async () => {
+    // Setup mock implementation
+    vi.mocked(Impit).mockImplementation(function () {
+      return {
+        fetch: mockFetch,
+      } as any;
+    });
+
+    // Default success response
+    mockFetch.mockResolvedValue({
+      ok: true,
+      status: 200,
+      text: async () => html,
+    });
+
     crawler = new AsyncWebCrawler(
       { headless: true, stealth: true }, // Enable stealth
       { cacheEnabled: false },
@@ -41,11 +76,11 @@ describe('AsyncWebCrawler Advanced Features', () => {
     `;
 
     // Mock fetch
-    const fetchSpy = vi.spyOn(global, 'fetch').mockResolvedValue({
+    mockFetch.mockResolvedValue({
       ok: true,
       status: 200,
       text: async () => html,
-    } as Response);
+    });
 
     const schema: CSSSchema = {
       title: 'h1',
@@ -72,7 +107,7 @@ describe('AsyncWebCrawler Advanced Features', () => {
     expect(result.extractedContent.author).toBe('John Doe');
     expect(result.extractedContent.tags).toEqual(['Tech', 'News']);
 
-    fetchSpy.mockRestore();
+    mockFetch.mockClear();
   });
 
   it('should generate markdown with citations', async () => {
@@ -81,11 +116,11 @@ describe('AsyncWebCrawler Advanced Features', () => {
     `;
 
     // Mock fetch
-    const fetchSpy = vi.spyOn(global, 'fetch').mockResolvedValue({
+    mockFetch.mockResolvedValue({
       ok: true,
       status: 200,
       text: async () => html,
-    } as Response);
+    });
 
     const result = await crawler.arun('https://mocked-citations.com', {
       jsExecution: false,
@@ -99,7 +134,7 @@ describe('AsyncWebCrawler Advanced Features', () => {
     expect(result.markdown).toContain('[1]');
     expect(result.markdown).toContain('https://example.com');
 
-    fetchSpy.mockRestore();
+    mockFetch.mockClear();
   });
 
   it('should prune content using BM25', async () => {
@@ -110,11 +145,11 @@ describe('AsyncWebCrawler Advanced Features', () => {
     `;
 
     // Mock fetch
-    const fetchSpy = vi.spyOn(global, 'fetch').mockResolvedValue({
+    mockFetch.mockResolvedValue({
       ok: true,
       status: 200,
       text: async () => html,
-    } as Response);
+    });
 
     const result = await crawler.arun('https://mocked-pruning.com', {
       jsExecution: false,
@@ -132,6 +167,6 @@ describe('AsyncWebCrawler Advanced Features', () => {
       'Apple is a technology company',
     );
 
-    fetchSpy.mockRestore();
+    mockFetch.mockClear();
   });
 });

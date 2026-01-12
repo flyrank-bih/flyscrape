@@ -3,7 +3,7 @@ import {
   type Tiktoken,
   type TiktokenModel,
 } from 'js-tiktoken';
-import { LRUCache } from 'lru-cache';
+import { SimpleCache } from './cache';
 
 /**
  * Configuration options for the Tokenizer.
@@ -77,16 +77,14 @@ export interface ITokenizer {
  */
 export class Tokenizer implements ITokenizer {
   private encoders: Map<string, Tiktoken> = new Map();
-  private cache: LRUCache<string, number> | null = null;
+  private cache: SimpleCache<string, number> | null = null;
   private defaultModel: TiktokenModel;
 
   constructor(config: TokenizerConfig = {}) {
     this.defaultModel = config.defaultModel || 'gpt-4o-mini';
 
     if (config.enableCache !== false) {
-      this.cache = new LRUCache({
-        max: config.cacheSize || 1000,
-      });
+      this.cache = new SimpleCache(config.cacheSize || 1000);
     }
   }
 

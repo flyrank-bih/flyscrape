@@ -1,5 +1,6 @@
-import { gotScraping } from 'got-scraping';
 import * as fs from 'node:fs/promises';
+import { Impit } from 'impit';
+import type { Cookie } from 'playwright';
 import { CacheManager } from '../cache';
 import {
   DEFAULT_BROWSER_CONFIG,
@@ -350,10 +351,9 @@ export class AsyncWebCrawler {
       );
 
       // Get cookies to return in result
-      // biome-ignore lint/suspicious/noExplicitAny: <Technical debt>
       const cookies = await context.cookies();
 
-      return { ...result, statusCode, cookies: cookies as any };
+      return { ...result, statusCode, cookies: cookies as Cookie[] };
     } finally {
       if (options.session_id) {
         await page.close();
@@ -379,14 +379,13 @@ export class AsyncWebCrawler {
       const path = options.url.slice(7);
       html = await fs.readFile(path, 'utf-8');
     } else {
-      // Use got-scraping for robust TLS fingerprinting and browser-like headers
-      const response = await gotScraping(options.url, {
+      // Use impit for robust TLS fingerprinting and browser-like headers
+      const impit = new Impit();
+      const response = await impit.fetch(options.url, {
         headers: options.headers,
-        throwHttpErrors: false,
-        retry: { limit: 2 },
       });
-      html = response.body;
-      statusCode = response.statusCode;
+      html = await response.text();
+      statusCode = response.status;
     }
 
     const result = await this.processPageContent(

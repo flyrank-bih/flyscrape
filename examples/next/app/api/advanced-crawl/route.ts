@@ -1,12 +1,12 @@
+import { AsyncWebCrawler, type CrawlResult } from '@flyrank/flyscrape';
 import { NextResponse } from 'next/server';
-import { AsyncWebCrawler } from '@flyrank/flyscrape';
 
 export async function POST(request: Request) {
   const { url, mode, sessionId } = await request.json();
   const crawler = new AsyncWebCrawler({ headless: true });
 
   try {
-    let result;
+    let result: CrawlResult;
 
     if (mode === 'session') {
       // 1. Session Persistence Example
@@ -26,10 +26,10 @@ export async function POST(request: Request) {
       });
     } else if (mode === 'fast') {
       // 2. Fast Mode (TLS Client) Example
-      // Uses got-scraping for high-performance, stealthy non-browser requests
+      // Uses impit for high-performance, stealthy non-browser requests
       console.log(`[Fast Mode] Crawling ${url} with TLS client`);
       result = await crawler.arun(url, {
-        jsExecution: false, // Disables browser, enables got-scraping
+        jsExecution: false, // Disables browser, enables impit
       });
     } else {
       return NextResponse.json(
@@ -52,14 +52,14 @@ export async function POST(request: Request) {
         title: result.metadata?.title,
         statusCode: result.statusCode,
         // Return cookies to prove session persistence works (if in session mode)
-        // biome-ignore lint/suspicious/noExplicitAny: <Technical debt>
-        cookies: mode === 'session' ? (result as any).cookies : undefined,
+        cookies: mode === 'session' ? result.cookies : undefined,
         htmlLength: result.html.length,
       },
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
     return NextResponse.json(
-      { success: false, error: error.message },
+      { success: false, error: errorMessage },
       { status: 500 },
     );
   } finally {

@@ -136,7 +136,7 @@ export class BrowserManager {
     for (const context of Array.from(this.sessions.values())) {
       try {
         await context.close();
-      } catch (error) {
+      } catch (_error) {
         // Ignore errors during cleanup
       }
     }

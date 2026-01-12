@@ -148,12 +148,12 @@ await crawler.closeSession(sessionId);
 <details>
 <summary>⚡ <strong>TLS Client / Fast Mode</strong></summary>
 
-Use `got-scraping` under the hood to mimic real browser TLS fingerprints without the overhead of a full browser.
+Use `impit` under the hood to mimic real browser TLS fingerprints without the overhead of a full browser.
 
 ```typescript
 // Fast mode (no browser, but stealthy TLS fingerprint)
 const result = await crawler.arun("https://example.com", {
-  jsExecution: false // Disables Playwright, enables got-scraping
+  jsExecution: false // Disables Playwright, enables impit
 });
 ```
 

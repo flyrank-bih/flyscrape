@@ -1,8 +1,18 @@
 /** biome-ignore-all lint/suspicious/noExplicitAny: <Technical debt> */
 'use client';
 
-import { SetStateAction, useState } from 'react';
-import { scrapeUrl } from './actions';
+import {
+  CheckCircle2,
+  Code2,
+  Copy,
+  Globe,
+  Shield,
+  Sparkles,
+  Terminal,
+} from 'lucide-react';
+import { type SetStateAction, useState } from 'react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -13,18 +23,8 @@ import {
 } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import {
-  Terminal,
-  Globe,
-  Sparkles,
-  Shield,
-  Code2,
-  CheckCircle2,
-  Copy,
-} from 'lucide-react';
+import { scrapeUrl } from './actions';
 
 export default function Home() {
   const [url, setUrl] = useState('https://example.com');
@@ -83,19 +83,19 @@ export default function Home() {
             </div>
             <nav className="flex items-center gap-6">
               <a
-                href="#"
+                href="/"
                 className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
               >
                 Docs
               </a>
               <a
-                href="#"
+                href="/"
                 className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
               >
                 API
               </a>
               <a
-                href="#"
+                href="/"
                 className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
               >
                 Pricing

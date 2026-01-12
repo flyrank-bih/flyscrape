@@ -7,7 +7,7 @@ const nextConfig: NextConfig = {
     'puppeteer-extra-plugin',
     'playwright-extra',
     'playwright',
-    'got-scraping',
+    'impit',
     'header-generator',
   ],
 };

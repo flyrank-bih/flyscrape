@@ -1,23 +1,19 @@
 import crypto from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
-import { LRUCache } from 'lru-cache';
 import type { CrawlResult } from '../core/types';
+import { SimpleCache } from '../utils/cache';
 import { normalizeUrl } from '../utils/url';
 
 /**
  * Hybrid cache (Memory + Disk) for crawl results.
  */
 export class CacheManager {
-  private cache: LRUCache<string, CrawlResult>;
+  private cache: SimpleCache<string, CrawlResult>;
   private cacheDir?: string;
 
   constructor(size: number = 1000, cacheDir?: string) {
-    this.cache = new LRUCache({
-      max: size,
-      // Optional: TTL (Time To Live)
-      ttl: 1000 * 60 * 60, // 1 hour default
-    });
+    this.cache = new SimpleCache(size);
     this.cacheDir = cacheDir;
 
     if (this.cacheDir) {

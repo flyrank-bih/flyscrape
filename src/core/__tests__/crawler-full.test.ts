@@ -1,10 +1,29 @@
+import { Impit } from 'impit';
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import { AsyncWebCrawler } from '../crawler';
+
+// Auto-mock impit
+vi.mock('impit');
+
+const mockFetch = vi.fn();
 
 describe('AsyncWebCrawler Full Integration', () => {
   let crawler: AsyncWebCrawler;
 
   beforeAll(async () => {
+    // Setup mock implementation
+    vi.mocked(Impit).mockImplementation(function () {
+      return {
+        fetch: mockFetch,
+      } as any;
+    });
+
+    mockFetch.mockResolvedValue({
+      status: 200,
+      text: async () => '<html><body><h1>Example Domain</h1></body></html>',
+      headers: new Map(),
+    });
+
     crawler = new AsyncWebCrawler(
       { headless: true },
       { cacheEnabled: true, maxConcurrency: 2 },
@@ -21,19 +40,19 @@ describe('AsyncWebCrawler Full Integration', () => {
     // Use a unique URL or clear cache to ensure clean state if needed,
     // but this is the first test using this url in this suite.
 
-    const fetchSpy = vi.spyOn(global, 'fetch');
+    mockFetch.mockClear();
 
     // First crawl
     const result1 = await crawler.arun(url, { jsExecution: false });
     expect(result1.success).toBe(true);
 
-    const callsAfterFirst = fetchSpy.mock.calls.length;
+    const callsAfterFirst = mockFetch.mock.calls.length;
     expect(callsAfterFirst).toBeGreaterThan(0);
 
     // Second crawl - should hit cache
     const result2 = await crawler.arun(url, { jsExecution: false });
     expect(result2.success).toBe(true);
-    expect(fetchSpy.mock.calls.length).toBe(callsAfterFirst); // No new calls
+    expect(mockFetch.mock.calls.length).toBe(callsAfterFirst); // No new calls
 
     // Third crawl with bypassCache
     const result3 = await crawler.arun(url, {
@@ -41,25 +60,21 @@ describe('AsyncWebCrawler Full Integration', () => {
       bypassCache: true,
     });
     expect(result3.success).toBe(true);
-    expect(fetchSpy.mock.calls.length).toBe(callsAfterFirst + 1); // One new call
-
-    fetchSpy.mockRestore();
+    expect(mockFetch.mock.calls.length).toBe(callsAfterFirst + 1); // One new call
   });
 
   it('should clear cache', async () => {
     const url = 'https://iana.org'; // Different URL
-    const fetchSpy = vi.spyOn(global, 'fetch');
+    mockFetch.mockClear();
 
     await crawler.arun(url, { jsExecution: false });
-    const callsAfterFirst = fetchSpy.mock.calls.length;
+    const callsAfterFirst = mockFetch.mock.calls.length;
 
     crawler.clearCache();
 
     await crawler.arun(url, { jsExecution: false });
     // Should trigger fetch again because cache was cleared
-    expect(fetchSpy.mock.calls.length).toBeGreaterThan(callsAfterFirst);
-
-    fetchSpy.mockRestore();
+    expect(mockFetch.mock.calls.length).toBeGreaterThan(callsAfterFirst);
   });
 
   it('should crawl many URLs', async () => {
