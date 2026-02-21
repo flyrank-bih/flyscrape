@@ -1,26 +1,17 @@
-import { Impit } from 'impit';
-import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
-import { AsyncWebCrawler } from '../crawler';
-
-// Auto-mock impit
-vi.mock('impit');
+import { Impit } from "impit";
+import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
+import { AsyncWebCrawler } from "../crawler";
 
 const mockFetch = vi.fn();
 
-describe('AsyncWebCrawler Full Integration', () => {
+describe("AsyncWebCrawler Full Integration", () => {
   let crawler: AsyncWebCrawler;
 
   beforeAll(async () => {
-    // Setup mock implementation
-    vi.mocked(Impit).mockImplementation(function () {
-      return {
-        fetch: mockFetch,
-      } as any;
-    });
-
+    vi.spyOn(Impit.prototype, "fetch").mockImplementation(mockFetch);
     mockFetch.mockResolvedValue({
       status: 200,
-      text: async () => '<html><body><h1>Example Domain</h1></body></html>',
+      text: async () => "<html><body><h1>Example Domain</h1></body></html>",
       headers: new Map(),
     });
 
@@ -33,10 +24,11 @@ describe('AsyncWebCrawler Full Integration', () => {
 
   afterAll(async () => {
     await crawler.close();
+    vi.restoreAllMocks();
   });
 
-  it('should cache results in fetch mode', async () => {
-    const url = 'https://example.com';
+  it("should cache results in fetch mode", async () => {
+    const url = "https://example.com";
     // Use a unique URL or clear cache to ensure clean state if needed,
     // but this is the first test using this url in this suite.
 
@@ -63,8 +55,8 @@ describe('AsyncWebCrawler Full Integration', () => {
     expect(mockFetch.mock.calls.length).toBe(callsAfterFirst + 1); // One new call
   });
 
-  it('should clear cache', async () => {
-    const url = 'https://iana.org'; // Different URL
+  it("should clear cache", async () => {
+    const url = "https://iana.org"; // Different URL
     mockFetch.mockClear();
 
     await crawler.arun(url, { jsExecution: false });
@@ -77,11 +69,11 @@ describe('AsyncWebCrawler Full Integration', () => {
     expect(mockFetch.mock.calls.length).toBeGreaterThan(callsAfterFirst);
   });
 
-  it('should crawl many URLs', async () => {
+  it("should crawl many URLs", async () => {
     const urls = [
-      'https://example.com',
-      'https://example.org',
-      'https://example.net',
+      "https://example.com",
+      "https://example.org",
+      "https://example.net",
     ];
 
     // We use fetch mode for speed

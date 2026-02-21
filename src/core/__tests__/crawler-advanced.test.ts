@@ -1,14 +1,11 @@
-import { Impit } from 'impit';
-import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
-import type { CSSSchema } from '../../extraction/interfaces';
-import { AsyncWebCrawler } from '../crawler';
-
-// Auto-mock impit
-vi.mock('impit');
+import { Impit } from "impit";
+import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
+import type { CSSSchema } from "../../extraction/interfaces";
+import { AsyncWebCrawler } from "../crawler";
 
 const mockFetch = vi.fn();
 
-describe('AsyncWebCrawler Advanced Features', () => {
+describe("AsyncWebCrawler Advanced Features", () => {
   let crawler: AsyncWebCrawler;
   const html = `
     <html>
@@ -25,15 +22,10 @@ describe('AsyncWebCrawler Advanced Features', () => {
       </body>
     </html>
   `;
+  const dataUrl = `data:text/html,${encodeURIComponent(html)}`;
 
   beforeAll(async () => {
-    // Setup mock implementation
-    vi.mocked(Impit).mockImplementation(function () {
-      return {
-        fetch: mockFetch,
-      } as any;
-    });
-
+    vi.spyOn(Impit.prototype, "fetch").mockImplementation(mockFetch);
     // Default success response
     mockFetch.mockResolvedValue({
       ok: true,
@@ -50,10 +42,11 @@ describe('AsyncWebCrawler Advanced Features', () => {
 
   afterAll(async () => {
     await crawler.close();
+    vi.restoreAllMocks();
   });
 
-  it('should launch with stealth mode enabled', async () => {
-    const result = await crawler.arun('https://example.com', {
+  it("should launch with stealth mode enabled", async () => {
+    const result = await crawler.arun(dataUrl, {
       jsExecution: true,
       magic: true,
     });
@@ -61,7 +54,7 @@ describe('AsyncWebCrawler Advanced Features', () => {
     expect(result.success).toBe(true);
   });
 
-  it('should extract data using CSS schema (fetch mode)', async () => {
+  it("should extract data using CSS schema (fetch mode)", async () => {
     const html = `
       <html>
         <body>
@@ -83,34 +76,34 @@ describe('AsyncWebCrawler Advanced Features', () => {
     });
 
     const schema: CSSSchema = {
-      title: 'h1',
+      title: "h1",
       author: {
-        selector: '.author span',
+        selector: ".author span",
       },
       tags: {
-        selector: '.tags li a',
+        selector: ".tags li a",
         list: true,
       },
     };
 
-    const result = await crawler.arun('https://mocked-article.com', {
+    const result = await crawler.arun("https://mocked-article.com", {
       jsExecution: false,
       extraction: {
-        type: 'css',
+        type: "css",
         schema,
       },
     });
 
     expect(result.success).toBe(true);
     expect(result.extractedContent).toBeDefined();
-    expect(result.extractedContent.title).toBe('Article Title');
-    expect(result.extractedContent.author).toBe('John Doe');
-    expect(result.extractedContent.tags).toEqual(['Tech', 'News']);
+    expect(result.extractedContent.title).toBe("Article Title");
+    expect(result.extractedContent.author).toBe("John Doe");
+    expect(result.extractedContent.tags).toEqual(["Tech", "News"]);
 
     mockFetch.mockClear();
   });
 
-  it('should generate markdown with citations', async () => {
+  it("should generate markdown with citations", async () => {
     const html = `
       <p>This is a <a href="https://example.com">link</a>.</p>
     `;
@@ -122,7 +115,7 @@ describe('AsyncWebCrawler Advanced Features', () => {
       text: async () => html,
     });
 
-    const result = await crawler.arun('https://mocked-citations.com', {
+    const result = await crawler.arun("https://mocked-citations.com", {
       jsExecution: false,
       processing: {
         markdown: {
@@ -131,13 +124,13 @@ describe('AsyncWebCrawler Advanced Features', () => {
       },
     });
 
-    expect(result.markdown).toContain('[1]');
-    expect(result.markdown).toContain('https://example.com');
+    expect(result.markdown).toContain("[1]");
+    expect(result.markdown).toContain("https://example.com");
 
     mockFetch.mockClear();
   });
 
-  it('should prune content using BM25', async () => {
+  it("should prune content using BM25", async () => {
     const html = `
       <p>Apple is a technology company.</p>
       <p>Banana is a fruit.</p>
@@ -151,11 +144,11 @@ describe('AsyncWebCrawler Advanced Features', () => {
       text: async () => html,
     });
 
-    const result = await crawler.arun('https://mocked-pruning.com', {
+    const result = await crawler.arun("https://mocked-pruning.com", {
       jsExecution: false,
       processing: {
         pruning: {
-          query: 'technology company',
+          query: "technology company",
           threshold: 0.1, // Low threshold for testing
         },
       },
@@ -164,7 +157,7 @@ describe('AsyncWebCrawler Advanced Features', () => {
     expect(result.filteredContent).toBeDefined();
     // The chunk about Apple technology should be ranked highest
     expect(result.filteredContent[0].content).toContain(
-      'Apple is a technology company',
+      "Apple is a technology company",
     );
 
     mockFetch.mockClear();

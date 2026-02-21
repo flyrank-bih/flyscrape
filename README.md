@@ -119,6 +119,106 @@ const result = await crawler.arun("https://blog.example.com/guide", {
 
 </details>
 
+## 🧩 API Service (n8n)
+
+FlyScrape includes a provider-agnostic API service that registers providers from environment variables and exposes REST endpoints for n8n and other workflow tools.
+
+### Environment Variables
+
+- `API_PROVIDER_<NAME>_ENDPOINT`
+- `API_PROVIDER_<NAME>_AUTH_TYPE` (`api_key`, `oauth`, `basic`, `none`)
+- `API_PROVIDER_<NAME>_API_KEY`
+- `API_PROVIDER_<NAME>_API_KEY_HEADER`
+- `API_PROVIDER_<NAME>_API_KEY_PREFIX`
+- `API_PROVIDER_<NAME>_OAUTH_TOKEN`
+- `API_PROVIDER_<NAME>_OAUTH_HEADER`
+- `API_PROVIDER_<NAME>_USERNAME`
+- `API_PROVIDER_<NAME>_PASSWORD`
+- `API_PROVIDER_<NAME>_RATE_LIMIT`
+- `API_PROVIDER_<NAME>_RATE_WINDOW_MS`
+- `API_PROVIDER_<NAME>_LOG_LEVEL`
+- `API_PROVIDER_<NAME>_HEALTH_ENDPOINT`
+- `API_PROVIDER_<NAME>_TIMEOUT_MS`
+- `API_SERVICE_PORT`
+- `API_SERVICE_BASE_PATH`
+- `API_SERVICE_LOG_LEVEL`
+- `API_SERVICE_MAX_BODY_BYTES`
+
+### REST Endpoints
+
+- `GET /health`
+- `GET /v1/providers`
+- `GET /v1/providers/:name`
+- `GET /v1/providers/:name/health`
+- `POST /v1/providers/:name/request`
+
+### Response Format
+
+```json
+{
+  "success": true,
+  "requestId": "uuid",
+  "data": {}
+}
+```
+
+```json
+{
+  "success": false,
+  "requestId": "uuid",
+  "error": {
+    "code": "ERROR_CODE",
+    "message": "Human readable message",
+    "details": {}
+  }
+}
+```
+
+### Example .env
+
+```bash
+API_PROVIDER_OPENAI_ENDPOINT=https://api.openai.com/v1
+API_PROVIDER_OPENAI_AUTH_TYPE=api_key
+API_PROVIDER_OPENAI_API_KEY=sk-...
+API_PROVIDER_OPENAI_API_KEY_HEADER=Authorization
+API_PROVIDER_OPENAI_API_KEY_PREFIX=Bearer
+API_PROVIDER_OPENAI_RATE_LIMIT=120
+API_PROVIDER_OPENAI_RATE_WINDOW_MS=60000
+API_PROVIDER_OPENAI_LOG_LEVEL=info
+API_PROVIDER_OPENAI_HEALTH_ENDPOINT=https://api.openai.com/v1/models
+API_SERVICE_PORT=3000
+API_SERVICE_BASE_PATH=/v1
+API_SERVICE_LOG_LEVEL=info
+```
+
+### Example Request
+
+```bash
+curl -X POST http://localhost:3000/v1/providers/openai/request \
+  -H "Content-Type: application/json" \
+  -d '{
+    "method": "POST",
+    "path": "/chat/completions",
+    "body": {
+      "model": "gpt-4o-mini",
+      "messages": [{ "role": "user", "content": "Hello" }]
+    }
+  }'
+```
+
+### Run the Service
+
+```bash
+bun run api-service
+```
+
+### Docker
+
+```bash
+docker build -t flyscrape-api .
+docker run --env-file .env -p 3000:3000 flyscrape-api
+```
+
 ## 🔬 Advanced Usage Examples
 
 <details>

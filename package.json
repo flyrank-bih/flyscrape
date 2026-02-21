@@ -42,6 +42,8 @@
     "publish": "npm publish --access public",
     "check": "biome check --write",
     "dev": "rslib build --watch",
+    "api-service": "bun src/api-service/cli.ts",
+    "lint": "biome lint .",
     "format": "biome format --write",
     "changeset": "changeset",
     "test": "vitest run"
