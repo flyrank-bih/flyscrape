@@ -4,6 +4,7 @@ export * from "./config";
 export * from "./core/browser-manager";
 export * from "./core/crawler";
 export * from "./core/dispatcher";
+export * from "./core/sitemap";
 export * from "./core/types";
 export * from "./extraction/css-strategy";
 export * from "./extraction/interfaces";

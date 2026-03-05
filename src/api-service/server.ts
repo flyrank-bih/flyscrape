@@ -164,7 +164,8 @@ export function loadProvidersFromEnv(
 ): ProviderConfig[] {
   const providers: ProviderConfig[] = [];
   const errors: string[] = [];
-  const endpointRegex = /^API_PROVIDER_(.+)_ENDPOINT$/;
+  // Only match API_PROVIDER_<Name>_ENDPOINT so HEALTH_ENDPOINT is not parsed as a provider name
+  const endpointRegex = /^API_PROVIDER_([A-Z0-9]+)_ENDPOINT$/;
 
   for (const [key, value] of Object.entries(env)) {
     const match = key.match(endpointRegex);

@@ -92,8 +92,8 @@ describe("API service provider configuration", () => {
 });
 
 describe("API service endpoints", () => {
-  let providerServer: http.Server;
-  let apiServer: ReturnType<typeof createApiService>;
+  let providerServer: http.Server | undefined;
+  let apiServer: ReturnType<typeof createApiService> | undefined;
   let apiUrl = "";
 
   beforeAll(async () => {
@@ -116,8 +116,10 @@ describe("API service endpoints", () => {
   });
 
   afterAll(async () => {
-    await apiServer.stop();
-    await new Promise<void>((resolve) => providerServer.close(() => resolve()));
+    if (apiServer) await apiServer.stop();
+    if (providerServer) {
+      await new Promise<void>((resolve) => providerServer!.close(() => resolve()));
+    }
   });
 
   it("returns provider health status", async () => {

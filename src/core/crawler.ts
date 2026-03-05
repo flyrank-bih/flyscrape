@@ -22,6 +22,11 @@ import { performStealthActions } from '../stealth/actions';
 import { isBlocked } from '../stealth/detector';
 import { extractLinks, extractMedia, extractMetadata } from '../utils/dom';
 import { normalizeUrl } from '../utils/url';
+import { fetchSitemapUrls } from './sitemap';
+import type {
+  SitemapIndexCategories,
+  SitemapOptions,
+} from './sitemap';
 import { BrowserManager } from './browser-manager';
 import { Dispatcher } from './dispatcher';
 import type {
@@ -163,6 +168,38 @@ export class AsyncWebCrawler {
   ): Promise<CrawlResult[]> {
     const dispatcher = new Dispatcher(this, this.config.maxConcurrency);
     return await dispatcher.crawlMany(urls, options);
+  }
+
+  /**
+   * Fetches all page URLs from a sitemap (or sitemap index), then crawls them
+   * with the same concurrency as arunMany. Optimized for speed (sitemaps fetched
+   * via HTTP with timeout/redirect limits) and security (same-origin filter,
+   * HTTPS, AbortSignal).
+   * When sitemapOptions.includeSitemapCategories is true and the root is a sitemap
+   * index, returns { results, sitemapCategories } with per-category counts (e.g.
+   * products, pages, blogs, collections).
+   */
+  async crawlFromSitemap(
+    sitemapUrl: string,
+    crawlOptions: Partial<CrawlOptions> = {},
+    sitemapOptions: SitemapOptions = {},
+  ): Promise<
+    | CrawlResult[]
+    | { results: CrawlResult[]; sitemapCategories: SitemapIndexCategories }
+  > {
+    const raw = await fetchSitemapUrls(sitemapUrl, sitemapOptions);
+    const urls = Array.isArray(raw) ? raw : raw.urls;
+    if (urls.length === 0) {
+      if (!Array.isArray(raw) && raw.sitemapCategories) {
+        return { results: [], sitemapCategories: raw.sitemapCategories };
+      }
+      return [];
+    }
+    const results = await this.arunMany(urls, crawlOptions);
+    if (!Array.isArray(raw)) {
+      return { results, sitemapCategories: raw.sitemapCategories };
+    }
+    return results;
   }
 
   /**

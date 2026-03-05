@@ -98,6 +98,7 @@ const result = await crawler.arun("https://blog.example.com/guide", {
 - 📡 **IFrame Content Extraction**: Seamless extraction from embedded iframe content.
 - 🕵️ **Lazy Load Handling**: Waits for images to fully load, ensuring no content is missed due to lazy loading.
 - 🔄 **Full-Page Scanning**: Simulates scrolling to load and capture all dynamic content, perfect for infinite scroll pages.
+- 🗺️ **Sitemap Crawling**: Fetch and crawl from sitemaps (and sitemap indexes) with optional category breakdown (e.g. products, pages, blogs).
 
 </details>
 
@@ -368,6 +369,56 @@ const result = await crawler.arun("https://store.example.com/product/123", {
     provider: myOpenAIProvider // Your LLM provider instance
   }
 });
+```
+
+</details>
+
+<details>
+<summary>🗺️ <strong>Sitemap Crawling</strong></summary>
+
+Crawl all pages listed in a sitemap (or sitemap index) in one call. Sitemaps are fetched over HTTP with timeouts and redirect limits; optional category counts (e.g. products, pages, blogs, collections) are supported.
+
+```typescript
+import {
+  AsyncWebCrawler,
+  fetchSitemapUrls,
+  getSitemapIndexCategories,
+} from "@flyrank/flyscrape";
+
+// Option A: Crawl all pages from a sitemap
+const crawler = new AsyncWebCrawler();
+await crawler.start();
+const results = await crawler.crawlFromSitemap(
+  "https://www.flyrank.com/sitemap.xml",
+  { jsExecution: false },  // fast fetch-only mode
+  { maxUrls: 1000, timeout: 10_000 }
+);
+await crawler.close();
+
+// Option B: Get only the list of URLs from the sitemap
+const urls = await fetchSitemapUrls("https://www.flyrank.com/sitemap.xml", {
+  sameOriginOnly: true,
+  maxUrls: 500,
+});
+
+// Option C: Get categorized counts (e.g. products (6), pages (6), blogs (12))
+const { categories, totalSitemaps } = await getSitemapIndexCategories(
+  "https://www.flyrank.com/sitemap.xml"
+);
+for (const [name, info] of Object.entries(categories)) {
+  console.log(`${name} (${info.count})`);
+}
+
+// Option D: Crawl and get category breakdown in one call
+const out = await crawler.crawlFromSitemap(
+  "https://www.flyrank.com/sitemap.xml",
+  { jsExecution: false },
+  { includeSitemapCategories: true }
+);
+if (!Array.isArray(out)) {
+  console.log("Categories:", out.sitemapCategories.categories);
+  // out.results = crawl results
+}
 ```
 
 </details>
